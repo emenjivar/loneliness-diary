@@ -19,7 +19,7 @@ jobs:
           distribution: 'adopt'
 
       - name: Setup gradle
-        uses: gradle/gradlew-build-action@v2
+        uses: gradle/gradle-build-action@v2
         with:
           gradle-version: wrapper
 

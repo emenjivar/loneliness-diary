@@ -1,0 +1,35 @@
+name: Pull request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          cache: gradle
+
+      - name: Grant execute permissions for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with gradle
+        run: ./gradlew assembleDebug
+
+      - name: Run Ktlin check
+        run: ./gradlew ktlintCheck
+
+      - name: Run Detekt check
+        run: ./gradlew detekt
+
+      
+        

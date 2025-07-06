@@ -1,5 +1,6 @@
-import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
+import io.gitlab.arturbosch.detekt.Detekt
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
@@ -11,6 +12,20 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.dagger.hilt) apply false
     alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.detekt)
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom("$projectDir/config/detekt/detekt.yml")
+}
+
+tasks.withType<Detekt>().configureEach {
+    jvmTarget = "1.8"
+    reports {
+        html.required.set(true)
+    }
 }
 
 subprojects {

@@ -15,7 +15,7 @@ interface DiaryEntryRepository {
 
 class DiaryEntryRepositoryImp(
     private val diaryEntryDao: DiaryEntryDao
-): DiaryEntryRepository {
+) : DiaryEntryRepository {
     override fun getAll() = diaryEntryDao.getAll()
         .distinctUntilChanged()
         .map { entities ->

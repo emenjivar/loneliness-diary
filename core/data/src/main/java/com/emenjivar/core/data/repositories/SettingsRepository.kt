@@ -1,4 +1,4 @@
-package com.emenjivar.core.data
+package com.emenjivar.core.data.repositories
 
 import android.content.Context
 import com.emenjivar.core.datastore.AppDataStore

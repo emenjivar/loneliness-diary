@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DiaryEntryDao {
     @Query("SELECT * FROM diary_entry")
-    fun getAll(): Flow<DiaryEntryEntity>
+    fun getAll(): Flow<List<DiaryEntryEntity>>
 
     @Insert
     suspend fun insert(entry: DiaryEntryEntity)

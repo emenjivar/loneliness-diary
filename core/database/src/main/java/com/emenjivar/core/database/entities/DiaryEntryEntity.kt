@@ -5,9 +5,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "diary_entry")
-class DiaryEntryEntity(
+data class DiaryEntryEntity(
     @PrimaryKey(autoGenerate = true)
-    val uid: Int,
+    val uid: Int = 0,
 
     @ColumnInfo(name = "title")
     val title: String,

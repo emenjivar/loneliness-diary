@@ -13,6 +13,7 @@ material = "1.12.0"
 jetbrainsKotlinJvm = "1.9.0"
 room = "2.7.2"
 datastore = "1.1.7"
+hilt = "2.56.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +39,10 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
+# DI
+dagger-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -45,4 +50,4 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 google-ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.27" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
+dagger-hilt = { id ="com.google.dagger.hilt.android", version.ref = "hilt" }

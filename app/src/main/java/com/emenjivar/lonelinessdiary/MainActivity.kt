@@ -18,17 +18,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.emenjivar.core.data.SettingsRepository
 import com.emenjivar.lonelinessdiary.ui.theme.LonelinessDiaryTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val settingsRepository = SettingsRepository(context = applicationContext)
-
         setContent {
-            // TODO: test code, remove after implementing DI
             val count by settingsRepository.counter.collectAsState(initial = 0)
             val coroutineScope = rememberCoroutineScope()
 

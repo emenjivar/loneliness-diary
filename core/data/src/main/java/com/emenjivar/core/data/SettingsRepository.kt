@@ -2,13 +2,21 @@ package com.emenjivar.core.data
 
 import android.content.Context
 import com.emenjivar.core.datastore.AppDataStore
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
-class SettingsRepository(private val context: Context) {
+interface SettingsRepository {
+    val counter: Flow<Int>
+    suspend fun setCounter(value: Int)
+}
+
+class SettingsRepositoryImp(
+    context: Context
+) : SettingsRepository {
     private val dataStore = AppDataStore(context)
 
-    val counter = dataStore.counterFlow.distinctUntilChanged()
-    suspend fun setCounter(value: Int) {
+    override val counter = dataStore.counterFlow.distinctUntilChanged()
+    override suspend fun setCounter(value: Int) {
         dataStore.setCounter(value)
     }
 }

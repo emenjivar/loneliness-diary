@@ -17,9 +17,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.emenjivar.core.data.models.DiaryEntry
 import com.emenjivar.core.data.repositories.DiaryEntryRepository
 import com.emenjivar.core.data.repositories.SettingsRepository
-import com.emenjivar.core.data.models.DiaryEntry
 import com.emenjivar.lonelinessdiary.ui.theme.LonelinessDiaryTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

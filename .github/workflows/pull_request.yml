@@ -25,7 +25,7 @@ jobs:
           cache-read-only: false
 
       - name: Build with gradle
-        run: ./gradlew assembleDebug --build-cache
+        run: ./gradlew compileDebugSources --build-cache
 
       - name: Run Ktlin check
         run: ./gradlew ktlintCheck

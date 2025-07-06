@@ -23,7 +23,7 @@ rootProject.name = "Loneliness diary"
 include(":app")
 include(":core:database")
 include(":core:datastore")
-include(":core:data")
 include(":core:backup")
 include(":core:ui")
 include(":feature:diary")
+include(":core:data")

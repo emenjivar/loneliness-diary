@@ -4,26 +4,47 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.emenjivar.core.data.SettingsRepository
 import com.emenjivar.lonelinessdiary.ui.theme.LonelinessDiaryTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val settingsRepository = SettingsRepository(context = applicationContext)
+
         setContent {
+            // TODO: test code, remove after implementing DI
+            val count by settingsRepository.counter.collectAsState(initial = 0)
+            val coroutineScope = rememberCoroutineScope()
+
             LonelinessDiaryTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    Column(modifier= Modifier.padding(innerPadding)) {
+                        Text(text = "count: $count")
+                        Button(onClick = {
+                            coroutineScope.launch {
+                                settingsRepository.setCounter(count + 1)
+                            }
+                        }
+                        ) {
+                            Text(text = "Increase")
+                        }
+                    }
                 }
             }
         }

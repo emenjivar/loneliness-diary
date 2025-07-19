@@ -1,19 +1,24 @@
 package com.emenjivar.feature.diary.screens
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -24,12 +29,24 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import com.emenjivar.feature.diary.ui.InsertOptionMenu
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.emenjivar.feature.diary.ui.InsertOption
+import com.emenjivar.feature.diary.ui.InsertOptionMenu
 import kotlinx.coroutines.delay
 
 @Composable
-internal fun DiaryScreen() {
+internal fun DiaryScreen(
+    viewModel: DiaryScreenViewModel = hiltViewModel()
+) {
+    DiaryScreen(uiState = viewModel.uiState)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun DiaryScreen(
+    uiState: DiaryUiState
+) {
     var textFieldValue by remember { mutableStateOf(TextFieldValue()) }
     var showMenu by remember { mutableStateOf(false) }
     var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
@@ -37,14 +54,33 @@ internal fun DiaryScreen() {
     val focusRequester = remember { FocusRequester() }
     var menuOffset by remember { mutableStateOf(Offset.Zero) }
 
-    val windowInsets = WindowInsets.ime
+//    val windowInsets = WindowInsets.ime
     val density = LocalDensity.current
 //    val keyboardHeight = with(density) {
 //        windowInsets.getBottom(density = LocalDensity.current).toDp()
 //    }
 
-    Scaffold { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = uiState.popBackStack) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            // TODO: use an string resource here
+                            contentDescription = "Navigate back"
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(horizontal = 20.dp)
+        ) {
             BasicTextField(
                 modifier = Modifier
                     .fillMaxSize()
@@ -71,14 +107,15 @@ internal fun DiaryScreen() {
                     textLayoutResult = it
                 },
                 decorationBox = { innerTextField ->
-                    if (textFieldValue.text.isEmpty()) {
-                        Text(
-                            text = "Type something...",
-                            color = Color.Black.copy(alpha = 0.8f)
-                        )
+                    Box(contentAlignment = Alignment.TopStart) {
+                        if (textFieldValue.text.isEmpty()) {
+                            Text(
+                                text = "Type something...",
+                                color = Color.Black.copy(alpha = 0.8f)
+                            )
+                        }
+                        innerTextField()
                     }
-
-                    innerTextField()
                 }
             )
 
@@ -100,6 +137,7 @@ internal fun DiaryScreen() {
                                     selection = TextRange(updatedText.length)
                                 )
                             }
+
                             InsertOption.COLOR -> {
                                 val updatedText = "$textWithoutSlash[color:blue]"
                                 textFieldValue = textFieldValue.copy(
@@ -107,6 +145,7 @@ internal fun DiaryScreen() {
                                     selection = TextRange(updatedText.length)
                                 )
                             }
+
                             InsertOption.SONG -> {
                                 val updatedText = "$textWithoutSlash[song:https://mysong.co/23987]"
                                 textFieldValue = textFieldValue.copy(
@@ -114,6 +153,7 @@ internal fun DiaryScreen() {
                                     selection = TextRange(updatedText.length)
                                 )
                             }
+
                             InsertOption.PLACE -> {
                                 val updatedText = "$textWithoutSlash[place:1223,2323]"
                                 textFieldValue = textFieldValue.copy(

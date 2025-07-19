@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.ksp)
+    alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     alias(libs.plugins.jetbrains.kotlin.serialization)
@@ -52,6 +54,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // DI
+    implementation(libs.dagger.hilt)
+    implementation(libs.hilt.compose)
+    ksp(libs.dagger.hilt.compiler)
 
     // Navigation
     implementation(libs.androidx.navigation3.ui)

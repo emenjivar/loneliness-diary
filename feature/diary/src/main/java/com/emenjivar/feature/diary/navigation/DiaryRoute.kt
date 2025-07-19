@@ -8,4 +8,3 @@ data object DiaryRoute : NavKey
 
 @Serializable
 data object DiaryDetailRoute : NavKey
-

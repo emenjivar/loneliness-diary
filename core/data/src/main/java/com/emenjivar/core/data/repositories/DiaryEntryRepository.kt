@@ -13,6 +13,7 @@ interface DiaryEntryRepository {
     suspend fun insert(entry: DiaryEntry)
 }
 
+// TODO: change scope to internal
 class DiaryEntryRepositoryImp(
     private val diaryEntryDao: DiaryEntryDao
 ) : DiaryEntryRepository {

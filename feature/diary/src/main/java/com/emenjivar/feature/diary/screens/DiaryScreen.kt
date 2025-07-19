@@ -2,10 +2,12 @@ package com.emenjivar.feature.diary.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +27,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -47,6 +48,8 @@ internal fun DiaryScreen(
 internal fun DiaryScreen(
     uiState: DiaryUiState
 ) {
+    // TODO: this text does not persist across device configuration changes.
+    //  `rememberSavable` only supports primitive data
     var textFieldValue by remember { mutableStateOf(TextFieldValue()) }
     var showMenu by remember { mutableStateOf(false) }
     var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
@@ -55,7 +58,7 @@ internal fun DiaryScreen(
     var menuOffset by remember { mutableStateOf(Offset.Zero) }
 
 //    val windowInsets = WindowInsets.ime
-    val density = LocalDensity.current
+//    val density = LocalDensity.current
 //    val keyboardHeight = with(density) {
 //        windowInsets.getBottom(density = LocalDensity.current).toDp()
 //    }
@@ -76,96 +79,108 @@ internal fun DiaryScreen(
             )
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
+            Box(
+                modifier = Modifier
                 .padding(paddingValues)
                 .padding(horizontal = 20.dp)
-        ) {
-            BasicTextField(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .focusRequester(focusRequester),
-                value = textFieldValue,
-                onValueChange = { newValue ->
-                    textFieldValue = newValue
+            ) {
+                BasicTextField(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .focusRequester(focusRequester),
+                    value = textFieldValue,
+                    onValueChange = { newValue ->
+                        textFieldValue = newValue
 
-                    if (newValue.text.lastOrNull() == '/') {
-                        showMenu = true
+                        if (newValue.text.lastOrNull() == '/') {
+                            showMenu = true
 
-                        textLayoutResult?.let { layout ->
-                            val cursorRect = layout.getCursorRect(newValue.selection.start - 1)
-                            menuOffset = Offset(
-                                x = cursorRect.left,
-                                y = cursorRect.bottom
-                            )
+                            textLayoutResult?.let { layout ->
+                                val cursorRect = layout.getCursorRect(newValue.selection.start - 1)
+                                menuOffset = Offset(
+                                    x = cursorRect.left,
+                                    y = cursorRect.bottom
+                                )
+                            }
+                        } else {
+                            showMenu = false
                         }
-                    } else {
-                        showMenu = false
-                    }
-                },
-                onTextLayout = {
-                    textLayoutResult = it
-                },
-                decorationBox = { innerTextField ->
-                    Box(contentAlignment = Alignment.TopStart) {
-                        if (textFieldValue.text.isEmpty()) {
-                            Text(
-                                text = "Type something...",
-                                color = Color.Black.copy(alpha = 0.8f)
-                            )
-                        }
-                        innerTextField()
-                    }
-                }
-            )
-
-            if (showMenu) {
-                InsertOptionMenu(
-                    modifier = Modifier.graphicsLayer {
-                        translationY = menuOffset.y
                     },
-                    onSelect = { action ->
-                        showMenu = false
-                        val textWithoutSlash = textFieldValue.text.dropLast(1)
-
-                        // TODO: should open a bottom dialog instead
-                        when (action) {
-                            InsertOption.EMOTION -> {
-                                val updatedText = "$textWithoutSlash[emotion:sad]"
-                                textFieldValue = textFieldValue.copy(
-                                    text = updatedText,
-                                    selection = TextRange(updatedText.length)
+                    onTextLayout = {
+                        textLayoutResult = it
+                    },
+                    decorationBox = { innerTextField ->
+                        Box(contentAlignment = Alignment.TopStart) {
+                            if (textFieldValue.text.isEmpty()) {
+                                Text(
+                                    text = "Type something...",
+                                    color = Color.Black.copy(alpha = 0.8f)
                                 )
                             }
-
-                            InsertOption.COLOR -> {
-                                val updatedText = "$textWithoutSlash[color:blue]"
-                                textFieldValue = textFieldValue.copy(
-                                    text = updatedText,
-                                    selection = TextRange(updatedText.length)
-                                )
-                            }
-
-                            InsertOption.SONG -> {
-                                val updatedText = "$textWithoutSlash[song:https://mysong.co/23987]"
-                                textFieldValue = textFieldValue.copy(
-                                    text = updatedText,
-                                    selection = TextRange(updatedText.length)
-                                )
-                            }
-
-                            InsertOption.PLACE -> {
-                                val updatedText = "$textWithoutSlash[place:1223,2323]"
-                                textFieldValue = textFieldValue.copy(
-                                    text = updatedText,
-                                    selection = TextRange(updatedText.length)
-                                )
-                            }
+                            innerTextField()
                         }
                     }
                 )
+
+                if (showMenu) {
+                    InsertOptionMenu(
+                        modifier = Modifier.graphicsLayer {
+                            translationY = menuOffset.y
+                        },
+                        onSelect = { action ->
+                            showMenu = false
+                            val textWithoutSlash = textFieldValue.text.dropLast(1)
+
+                            // TODO: should open a bottom dialog instead
+                            when (action) {
+                                InsertOption.EMOTION -> {
+                                    val updatedText = "$textWithoutSlash[emotion:sad]"
+                                    textFieldValue = textFieldValue.copy(
+                                        text = updatedText,
+                                        selection = TextRange(updatedText.length)
+                                    )
+                                }
+
+                                InsertOption.COLOR -> {
+                                    val updatedText = "$textWithoutSlash[color:blue]"
+                                    textFieldValue = textFieldValue.copy(
+                                        text = updatedText,
+                                        selection = TextRange(updatedText.length)
+                                    )
+                                }
+
+                                InsertOption.SONG -> {
+                                    val updatedText = "$textWithoutSlash[song:https://mysong.co/23987]"
+                                    textFieldValue = textFieldValue.copy(
+                                        text = updatedText,
+                                        selection = TextRange(updatedText.length)
+                                    )
+                                }
+
+                                InsertOption.PLACE -> {
+                                    val updatedText = "$textWithoutSlash[place:1223,2323]"
+                                    textFieldValue = textFieldValue.copy(
+                                        text = updatedText,
+                                        selection = TextRange(updatedText.length)
+                                    )
+                                }
+                            }
+                        }
+                    )
+                }
+
+                Button(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .imePadding(),
+                    onClick = { uiState.saveEntry(textFieldValue.text) }
+                ) {
+                    Text(
+                        text = "Save entry",
+                        color = Color.Black
+                    )
+                }
             }
-        }
     }
 
     LaunchedEffect(Unit) {

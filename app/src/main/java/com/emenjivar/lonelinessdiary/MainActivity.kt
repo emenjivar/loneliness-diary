@@ -11,22 +11,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.emenjivar.core.data.repositories.DiaryEntryRepository
-import com.emenjivar.core.data.repositories.SettingsRepository
 import com.emenjivar.feature.diary.navigation.DiaryRoute
 import com.emenjivar.feature.diary.navigation.featureGraph
 import com.emenjivar.lonelinessdiary.ui.theme.LonelinessDiaryTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var settingsRepository: SettingsRepository
-
-    @Inject
-    lateinit var diaryEntryRepository: DiaryEntryRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

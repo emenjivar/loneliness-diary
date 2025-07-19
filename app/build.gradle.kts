@@ -57,6 +57,7 @@ android {
 
 dependencies {
     implementation(project(":core:data"))
+    implementation(project(":feature:diary"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

@@ -4,25 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.emenjivar.core.data.models.DiaryEntry
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
 import com.emenjivar.core.data.repositories.DiaryEntryRepository
 import com.emenjivar.core.data.repositories.SettingsRepository
+import com.emenjivar.feature.diary.navigation.DiaryRoute
+import com.emenjivar.feature.diary.navigation.featureGraph
 import com.emenjivar.lonelinessdiary.ui.theme.LonelinessDiaryTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -39,45 +33,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val count by settingsRepository.counter.collectAsState(initial = 0)
-            val entries by diaryEntryRepository.getAll().collectAsState(initial = emptyList())
-            val coroutineScope = rememberCoroutineScope()
+            val backStack = rememberNavBackStack(DiaryRoute)
 
             LonelinessDiaryTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding)) {
-                        Text(text = "count: $count")
-                        Row {
-                            Button(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        settingsRepository.setCounter(count + 1)
-                                    }
-                                }
-                            ) {
-                                Text(text = "Increase")
+                NavDisplay(
+                    backStack = backStack,
+                    entryProvider = entryProvider {
+                        featureGraph(
+                            navigateTo = backStack::add,
+                            popBackStack = {
+                                backStack.removeLastOrNull()
                             }
-                            Button(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        diaryEntryRepository.insert(
-                                            DiaryEntry(
-                                                title = "Entry ${entries.size + 1}",
-                                                content = "Description"
-                                            )
-                                        )
-                                    }
-                                }
-                            ) {
-                                Text(text = "Add entry")
-                            }
-                        }
-
-                        for (entry in entries) {
-                            Text("$entry")
-                        }
+                        )
                     }
-                }
+                )
             }
         }
     }

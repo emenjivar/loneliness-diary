@@ -11,8 +11,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.emenjivar.feature.diary.navigation.DiaryRoute
 import com.emenjivar.feature.diary.navigation.featureGraph
+import com.emenjivar.feature.diary.screens.browse.DiaryBrowseRoute
 import com.emenjivar.lonelinessdiary.ui.theme.LonelinessDiaryTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val backStack = rememberNavBackStack(DiaryRoute)
+            val backStack = rememberNavBackStack(DiaryBrowseRoute)
 
             LonelinessDiaryTheme {
                 NavDisplay(

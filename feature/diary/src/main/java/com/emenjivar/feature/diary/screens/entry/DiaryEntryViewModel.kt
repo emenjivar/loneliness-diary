@@ -1,4 +1,4 @@
-package com.emenjivar.feature.diary.screens
+package com.emenjivar.feature.diary.screens.entry
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,10 +10,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DiaryScreenViewModel @Inject constructor(
+class DiaryEntryViewModel @Inject constructor(
     private val diaryEntryRepository: DiaryEntryRepository
 ) : ViewModel() {
-    val uiState = DiaryUiState(
+    val uiState = DiaryEntryUiState(
         saveEntry = ::saveEntry,
         popBackStack = {} // TODO: implement the navigation logic for the viewModels
     )

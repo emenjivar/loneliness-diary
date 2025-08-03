@@ -1,5 +1,6 @@
 package com.emenjivar.feature.diary.ui
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -7,7 +8,6 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +38,7 @@ internal fun InsertOptionMenu(
                         .clickable(
                             onClick = { onSelect(action) },
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple()
+                            indication = LocalIndication.current
                         )
                         // TODO: add a sizes file for common dp measures
                         .padding(horizontal = 16.dp, vertical = 8.dp)

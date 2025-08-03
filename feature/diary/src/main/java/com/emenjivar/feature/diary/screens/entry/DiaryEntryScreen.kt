@@ -32,15 +32,22 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.emenjivar.feature.diary.navigation.HandleNavigation
+import com.emenjivar.feature.diary.navigation.NavigationAction
 import com.emenjivar.feature.diary.ui.InsertOption
 import com.emenjivar.feature.diary.ui.InsertOptionMenu
 import kotlinx.coroutines.delay
 
 @Composable
 internal fun DiaryEntryContent(
-    viewModel: DiaryEntryViewModel = hiltViewModel()
+    viewModel: DiaryEntryViewModel = hiltViewModel(),
+    onNavigateAction: (NavigationAction) -> Unit
 ) {
     DiaryEntryContent(uiState = viewModel.uiState)
+    HandleNavigation(
+        navigationFlow = viewModel.navigationFlow,
+        onNavigateAction = onNavigateAction
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

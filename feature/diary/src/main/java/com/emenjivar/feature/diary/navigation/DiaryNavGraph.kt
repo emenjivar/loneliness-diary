@@ -9,9 +9,12 @@ import com.emenjivar.feature.diary.screens.entry.DiaryEntryContent
 import com.emenjivar.feature.diary.screens.entry.DiaryEntryRoute
 
 fun EntryProviderBuilder<NavKey>.featureGraph(
-    navigateTo: (NavKey) -> Unit,
-    popBackStack: () -> Unit
+    onNavigateAction: (NavigationAction) -> Unit
 ) {
-    entry<DiaryBrowseRoute> { DiaryBrowseScreen()  }
-    entry<DiaryEntryRoute> { DiaryEntryContent() }
+    entry<DiaryBrowseRoute> {
+        DiaryBrowseScreen(onNavigateAction = onNavigateAction)
+    }
+    entry<DiaryEntryRoute> {
+        DiaryEntryContent(onNavigateAction = onNavigateAction)
+    }
 }

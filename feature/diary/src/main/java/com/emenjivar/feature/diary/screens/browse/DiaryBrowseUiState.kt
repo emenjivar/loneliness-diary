@@ -5,5 +5,6 @@ import kotlinx.coroutines.flow.StateFlow
 
 data class DiaryBrowseUiState(
     val entries: StateFlow<List<DiaryEntry>>,
-    val navigateToNewEntry: (uid: Int) -> Unit
+    val navigateToNewEntry: () -> Unit,
+    val navigateToDetailEntry: (uid: Int) -> Unit
 )

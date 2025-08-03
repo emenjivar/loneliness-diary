@@ -11,6 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.emenjivar.feature.diary.navigation.NavigationAction
 import com.emenjivar.feature.diary.navigation.featureGraph
 import com.emenjivar.feature.diary.screens.browse.DiaryBrowseRoute
 import com.emenjivar.lonelinessdiary.ui.theme.LonelinessDiaryTheme
@@ -31,9 +32,15 @@ class MainActivity : ComponentActivity() {
                     backStack = backStack,
                     entryProvider = entryProvider {
                         featureGraph(
-                            navigateTo = backStack::add,
-                            popBackStack = {
-                                backStack.removeLastOrNull()
+                            onNavigateAction = { action ->
+                                when (action) {
+                                    is NavigationAction.NavigateTo -> {
+                                        backStack.add(action.route)
+                                    }
+                                    NavigationAction.PopBackStack -> {
+                                        backStack.removeLastOrNull()
+                                    }
+                                }
                             }
                         )
                     }

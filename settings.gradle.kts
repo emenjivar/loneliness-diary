@@ -9,6 +9,10 @@ pluginManagement {
         }
         mavenCentral()
         gradlePluginPortal()
+        maven {
+            // Used for `Material 3 adaptive layouts for Navigation 3` dependency
+            url = uri("https://androidx.dev/snapshots/builds/13752615/artifacts/repository")
+        }
     }
 }
 dependencyResolutionManagement {
@@ -16,6 +20,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            // Used for `Material 3 adaptive layouts for Navigation 3` dependency
+            url = uri("https://androidx.dev/snapshots/builds/13752615/artifacts/repository")
+        }
     }
 }
 

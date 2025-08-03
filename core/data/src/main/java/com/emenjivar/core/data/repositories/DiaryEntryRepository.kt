@@ -13,7 +13,7 @@ interface DiaryEntryRepository {
     suspend fun insert(entry: DiaryEntry)
 }
 
-class DiaryEntryRepositoryImp(
+internal class DiaryEntryRepositoryImp(
     private val diaryEntryDao: DiaryEntryDao
 ) : DiaryEntryRepository {
     override fun getAll() = diaryEntryDao.getAll()

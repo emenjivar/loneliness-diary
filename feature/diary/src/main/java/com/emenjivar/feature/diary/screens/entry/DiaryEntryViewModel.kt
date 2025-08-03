@@ -24,6 +24,7 @@ class DiaryEntryViewModel @Inject constructor(
                     content = text
                 )
             )
+            popBackStack()
         }
     }
 

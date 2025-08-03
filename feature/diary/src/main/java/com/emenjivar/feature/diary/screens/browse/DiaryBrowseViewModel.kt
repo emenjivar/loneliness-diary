@@ -9,7 +9,6 @@ import com.emenjivar.feature.diary.screens.entry.DiaryEntryRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,11 +16,12 @@ class DiaryBrowseViewModel @Inject constructor(
     diaryEntryRepository: DiaryEntryRepository
 ) : ViewModel(), ViewModelNavigation by ViewModelNavigationImp() {
 
-    private val entries = diaryEntryRepository.getAll().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyList()
-    )
+    private val entries = diaryEntryRepository.getAll()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = emptyList()
+        )
 
     private fun navigateToNewEntry() {
         navigate(DiaryEntryRoute)

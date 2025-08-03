@@ -13,12 +13,10 @@ interface DiaryEntryRepository {
     suspend fun insert(entry: DiaryEntry)
 }
 
-// TODO: change scope to internal
-class DiaryEntryRepositoryImp(
+internal class DiaryEntryRepositoryImp(
     private val diaryEntryDao: DiaryEntryDao
 ) : DiaryEntryRepository {
     override fun getAll() = diaryEntryDao.getAll()
-        .distinctUntilChanged()
         .map { entities ->
             entities.map { it.toModel() }
         }

@@ -17,6 +17,7 @@ internal class DiaryEntryRepositoryImp(
     private val diaryEntryDao: DiaryEntryDao
 ) : DiaryEntryRepository {
     override fun getAll() = diaryEntryDao.getAll()
+        .distinctUntilChanged()
         .map { entities ->
             entities.map { it.toModel() }
         }

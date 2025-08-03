@@ -1,5 +1,6 @@
 package com.emenjivar.feature.diary.screens.browse
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emenjivar.core.data.repositories.DiaryEntryRepository
@@ -29,6 +30,7 @@ class DiaryBrowseViewModel @Inject constructor(
 
     private fun navigateToDetailEntry(uid: Int) {
         // TODO: add detail
+        Log.wtf("DiaryBrowseViewModel", "uid: $uid")
     }
 
     val uiState = DiaryBrowseUiState(

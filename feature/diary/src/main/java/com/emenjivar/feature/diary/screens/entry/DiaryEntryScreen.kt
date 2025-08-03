@@ -39,11 +39,11 @@ import com.emenjivar.feature.diary.ui.InsertOptionMenu
 import kotlinx.coroutines.delay
 
 @Composable
-internal fun DiaryEntryContent(
+internal fun DiaryEntryScreen(
     viewModel: DiaryEntryViewModel = hiltViewModel(),
     onNavigateAction: (NavigationAction) -> Unit
 ) {
-    DiaryEntryContent(uiState = viewModel.uiState)
+    DiaryEntryScreen(uiState = viewModel.uiState)
     HandleNavigation(
         navigationFlow = viewModel.navigationFlow,
         onNavigateAction = onNavigateAction
@@ -52,7 +52,7 @@ internal fun DiaryEntryContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun DiaryEntryContent(
+internal fun DiaryEntryScreen(
     uiState: DiaryEntryUiState
 ) {
     // TODO: this text does not persist across device configuration changes.
@@ -121,7 +121,7 @@ internal fun DiaryEntryContent(
                         if (textFieldValue.text.isEmpty()) {
                             Text(
                                 text = "Type something...",
-                                color = Color.Black.copy(alpha = 0.8f)
+                                color = Color.Black.copy(alpha = ALPHA_TEXT)
                             )
                         }
                         innerTextField()
@@ -191,7 +191,10 @@ internal fun DiaryEntryContent(
     }
 
     LaunchedEffect(Unit) {
-        delay(500)
+        delay(DELAY_FOCUS)
         focusRequester.requestFocus()
     }
 }
+
+private const val ALPHA_TEXT = 0.8f
+private const val DELAY_FOCUS = 500L

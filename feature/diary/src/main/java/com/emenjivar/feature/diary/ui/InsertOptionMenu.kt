@@ -15,13 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-enum class InsertOption(val label: String) {
-    EMOTION(label = "Emotion"),
-    COLOR(label = "Color"),
-    SONG(label = "Song"),
-    PLACE(label = "Place")
-}
-
 @Composable
 internal fun InsertOptionMenu(
     modifier: Modifier = Modifier,
@@ -50,3 +43,9 @@ internal fun InsertOptionMenu(
 }
 
 // TODO: Theme should be included in another module?
+enum class InsertOption(val label: String) {
+    EMOTION(label = "Emotion"),
+    COLOR(label = "Color"),
+    SONG(label = "Song"),
+    PLACE(label = "Place")
+}

@@ -5,7 +5,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import com.emenjivar.feature.diary.screens.browse.DiaryBrowseRoute
 import com.emenjivar.feature.diary.screens.browse.DiaryBrowseScreen
-import com.emenjivar.feature.diary.screens.entry.DiaryEntryContent
+import com.emenjivar.feature.diary.screens.entry.DiaryEntryScreen
 import com.emenjivar.feature.diary.screens.entry.DiaryEntryRoute
 
 fun EntryProviderBuilder<NavKey>.featureGraph(
@@ -15,6 +15,6 @@ fun EntryProviderBuilder<NavKey>.featureGraph(
         DiaryBrowseScreen(onNavigateAction = onNavigateAction)
     }
     entry<DiaryEntryRoute> {
-        DiaryEntryContent(onNavigateAction = onNavigateAction)
+        DiaryEntryScreen(onNavigateAction = onNavigateAction)
     }
 }

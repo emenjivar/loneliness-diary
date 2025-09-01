@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -16,26 +16,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
-import com.emenjivar.feature.diary.ui.InsertOption
-import com.emenjivar.feature.diary.ui.InsertOptionMenu
 import kotlinx.coroutines.delay
 
 @Composable
@@ -55,20 +47,9 @@ internal fun DiaryEntryScreen(
 internal fun DiaryEntryScreen(
     uiState: DiaryEntryUiState
 ) {
-    // TODO: this text does not persist across device configuration changes.
-    //  `rememberSavable` only supports primitive data
-    var textFieldValue by remember { mutableStateOf(TextFieldValue()) }
-    var showMenu by remember { mutableStateOf(false) }
-    var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
-//    var text by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
-    var menuOffset by remember { mutableStateOf(Offset.Zero) }
-
-//    val windowInsets = WindowInsets.ime
-//    val density = LocalDensity.current
-//    val keyboardHeight = with(density) {
-//        windowInsets.getBottom(density = LocalDensity.current).toDp()
-//    }
+    val textFieldValue = remember { mutableStateOf(TextFieldValue()) }
+    val insertions = remember { mutableStateListOf<InsertedItem>() }
 
     Scaffold(
         topBar = {
@@ -77,7 +58,7 @@ internal fun DiaryEntryScreen(
                 navigationIcon = {
                     IconButton(onClick = uiState.popBackStack) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             // TODO: use an string resource here
                             contentDescription = "Navigate back"
                         )
@@ -89,103 +70,48 @@ internal fun DiaryEntryScreen(
         Box(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(horizontal = 20.dp)
+                .fillMaxSize()
         ) {
             BasicTextField(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .focusRequester(focusRequester),
-                value = textFieldValue,
-                onValueChange = { newValue ->
-                    textFieldValue = newValue
+                modifier = Modifier.focusRequester(focusRequester),
+                value = textFieldValue.value,
+                onValueChange = { updatedValue ->
+                    // Rebuilt the annotatedString preserving insertion styles
+                    val newAnnotatedString = applyStylesToAnnotatedString(
+                        rawText = updatedValue.text,
+                        insertions = insertions
+                    )
 
-                    if (newValue.text.lastOrNull() == '/') {
-                        showMenu = true
-
-                        textLayoutResult?.let { layout ->
-                            val cursorRect = layout.getCursorRect(newValue.selection.start - 1)
-                            menuOffset = Offset(
-                                x = cursorRect.left,
-                                y = cursorRect.bottom
-                            )
-                        }
-                    } else {
-                        showMenu = false
-                    }
-                },
-                onTextLayout = {
-                    textLayoutResult = it
-                },
-                decorationBox = { innerTextField ->
-                    Box(contentAlignment = Alignment.TopStart) {
-                        if (textFieldValue.text.isEmpty()) {
-                            Text(
-                                text = "Type something...",
-                                color = Color.Black.copy(alpha = ALPHA_TEXT)
-                            )
-                        }
-                        innerTextField()
-                    }
+                    textFieldValue.value = updatedValue.copy(annotatedString = newAnnotatedString)
                 }
             )
 
-            if (showMenu) {
-                InsertOptionMenu(
-                    modifier = Modifier.graphicsLayer {
-                        translationY = menuOffset.y
-                    },
-                    onSelect = { action ->
-                        showMenu = false
-                        val textWithoutSlash = textFieldValue.text.dropLast(1)
-
-                        // TODO: should open a bottom dialog instead
-                        when (action) {
-                            InsertOption.EMOTION -> {
-                                val updatedText = "$textWithoutSlash[emotion:sad]"
-                                textFieldValue = textFieldValue.copy(
-                                    text = updatedText,
-                                    selection = TextRange(updatedText.length)
-                                )
-                            }
-
-                            InsertOption.COLOR -> {
-                                val updatedText = "$textWithoutSlash[color:blue]"
-                                textFieldValue = textFieldValue.copy(
-                                    text = updatedText,
-                                    selection = TextRange(updatedText.length)
-                                )
-                            }
-
-                            InsertOption.SONG -> {
-                                val updatedText = "$textWithoutSlash[song:https://mysong.co/23987]"
-                                textFieldValue = textFieldValue.copy(
-                                    text = updatedText,
-                                    selection = TextRange(updatedText.length)
-                                )
-                            }
-
-                            InsertOption.PLACE -> {
-                                val updatedText = "$textWithoutSlash[place:1223,2323]"
-                                textFieldValue = textFieldValue.copy(
-                                    text = updatedText,
-                                    selection = TextRange(updatedText.length)
-                                )
-                            }
-                        }
-                    }
-                )
-            }
 
             Button(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
+                    .align(Alignment.BottomStart)
                     .imePadding(),
-                onClick = { uiState.saveEntry(textFieldValue.text) }
-            ) {
-                Text(
-                    text = "Save entry",
-                    color = Color.Black
-                )
+                onClick = {
+                    val originalTextField = textFieldValue.value
+                    val emotion: InsertedItem = InsertedItem.Emotion(
+                        data = listOf(Sad, Angry).random(),
+                        startIndex = originalTextField.selection.start
+                    )
+
+                    insertions.add(emotion)
+
+                    textFieldValue.value = originalTextField.copy(
+                        annotatedString = buildInsertAnnotatedString(
+                            annotatedString = originalTextField.annotatedString,
+                            item = emotion
+                        ),
+                        // Put the cursor at the end of the inserted word
+                        selection = TextRange(
+                            originalTextField.selection.end + emotion.length
+                        )
+                    )
+                }) {
+                Text("Insert")
             }
         }
     }
@@ -196,5 +122,4 @@ internal fun DiaryEntryScreen(
     }
 }
 
-private const val ALPHA_TEXT = 0.8f
 private const val DELAY_FOCUS = 500L

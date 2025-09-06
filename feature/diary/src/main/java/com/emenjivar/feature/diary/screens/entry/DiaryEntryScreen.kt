@@ -79,47 +79,52 @@ internal fun DiaryEntryScreen(
                 onValueChange = { updatedValue ->
                     val isDeleting = updatedValue.text.length < textFieldValue.value.text.length
                     val isAdding = updatedValue.text.length > textFieldValue.value.text.length
-
-                     val cursorIndex = updatedValue.selection.start
-                    // Insertion selected by the cursor pointer
-                    val cursorInsertedItem = insertions.firstOrNull {
-                        cursorIndex in it.startIndex..it.startIndex+it.length
-                    }
+                    val cursorIndex = updatedValue.selection.start
 
                     val insertionList = when {
                         isDeleting -> {
+                            // Insertion selected by the cursor pointer
+                            val cursorInsertedItem = insertions.firstOrNull {
+                                cursorIndex in it.startIndex..<it.startIndex + it.length
+                            }
+
                             // Removes the style of the partially deleted insertion
                             if (cursorInsertedItem != null) {
                                 insertions.remove(cursorInsertedItem)
                             }
 
                             // Apply a negative offset to the insertions ahead the cursor
-                            insertions.filter { it.startIndex + it.length >= cursorIndex }
-                                .forEachIndexed { index, insertion ->
+                            insertions.forEachIndexed { index, insertion ->
+                                if (insertion.startIndex + insertion.length > cursorIndex) {
                                     val data = insertion as InsertedItem.Emotion
                                     insertions[index] = data.copy(
                                         // TODO: use `startIndex = data.startIndex - cursorInsertedItem.length` when deleting the complete insertion
                                         startIndex = data.startIndex - (updatedValue.selection.length + 1) //cursorInsertedItem.length
                                     )
                                 }
+                            }
 
                             insertions
                         }
+
                         isAdding -> {
                             // Keep previous insertions (before the cursor)
-                            val previousInsertions = insertions.filter { it.startIndex + it.length < cursorIndex }
+                            val previousInsertions =
+                                insertions.filter { it.startIndex + it.length < cursorIndex }
 
                             // Apply a positive offset of the insertion ahead the cursor
-                            insertions.filter { it.startIndex + it.length >= cursorIndex }
-                                .forEachIndexed { index, insertion ->
+                            insertions.forEachIndexed { index, insertion ->
+                                if (insertion.startIndex + insertion.length >= cursorIndex) {
                                     val data = insertion as InsertedItem.Emotion
                                     insertions[index] = data.copy(
                                         startIndex = data.startIndex + (updatedValue.selection.length + 1)
                                     )
                                 }
+                            }
 
                             previousInsertions + insertions
                         }
+
                         else -> insertions
                     }
 

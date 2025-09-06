@@ -134,6 +134,17 @@ internal fun DiaryEntryScreen(
                         }
 
                         isAdding -> {
+                            // Preventing text edition on an already existent insertion,
+                            // an inserted word can only be deleted
+                            val insertedItemWithinRange = insertions.firstOrNull {
+                                // when a new character is added to the string, the cursor increases +1
+                                // that's why i subtract 1
+                                (cursorIndex - 1) in (it.startIndex + 1)..<(it.startIndex + it.length)
+                            }
+                            if (insertedItemWithinRange != null) {
+                                return@BasicTextField
+                            }
+
                             // Keep previous insertions (before the cursor)
                             val previousInsertions =
                                 insertions.filter { it.startIndex + it.length < cursorIndex }

@@ -26,8 +26,8 @@ sealed class InsertedItem(
     open val color: Color,
     open val startIndex: Int
 ) {
-    class Emotion(
-        data: EmotionData,
+    data class Emotion(
+        val data: EmotionData,
         override val startIndex: Int
     ) : InsertedItem(
         text = data.name,

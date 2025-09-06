@@ -20,6 +20,16 @@ val Angry = EmotionData(
     color = Color.Red
 )
 
+val Calm = EmotionData(
+    name = "calm",
+    color = Color.Green
+)
+
+val Happy = EmotionData(
+    name = "happy",
+    color = Color.Yellow
+)
+
 
 sealed class InsertedItem(
     val text: String,

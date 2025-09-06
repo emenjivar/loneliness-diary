@@ -81,17 +81,33 @@ internal fun DiaryEntryScreen(
                     val isAdding = updatedValue.text.length > textFieldValue.value.text.length
                     val cursorIndex = updatedValue.selection.start
 
-                    val insertionList = when {
+                    when {
                         isDeleting -> {
                             // Insertion selected by the cursor pointer
                             val cursorInsertedItem = insertions.firstOrNull {
                                 cursorIndex in it.startIndex..<it.startIndex + it.length
                             }
 
-                            // Removes the style of the partially deleted insertion
+                            var textFieldDeletion: TextFieldValue = updatedValue
                             if (cursorInsertedItem != null) {
+                                // Removes the style of the partially deleted insertion
                                 insertions.remove(cursorInsertedItem)
+
+                                // Deletes an inserted word when any of its characters is deleted
+                                val stringBeforeInsertedText = textFieldValue.value.text.substring(
+                                    startIndex = 0,
+                                    endIndex = cursorInsertedItem.startIndex
+                                )
+                                val stringAfterInsertedText =
+                                    textFieldValue.value.text.substring(startIndex = cursorInsertedItem.startIndex + cursorInsertedItem.length)
+                                val stringWithoutInsertedText =
+                                    stringBeforeInsertedText + stringAfterInsertedText
+                                textFieldDeletion = textFieldValue.value.copy(
+                                    text = stringWithoutInsertedText,
+                                    selection = TextRange(cursorInsertedItem.startIndex)
+                                )
                             }
+
 
                             // Apply a negative offset to the insertions ahead the cursor
                             insertions.forEachIndexed { index, insertion ->
@@ -99,12 +115,22 @@ internal fun DiaryEntryScreen(
                                     val data = insertion as InsertedItem.Emotion
                                     insertions[index] = data.copy(
                                         // TODO: use `startIndex = data.startIndex - cursorInsertedItem.length` when deleting the complete insertion
-                                        startIndex = data.startIndex - (updatedValue.selection.length + 1) //cursorInsertedItem.length
+                                        // Shift the insertions by the number of characters of the deleted insertion
+                                        // Or just shift by 1 (assuming there's no multi selection)
+                                        startIndex = data.startIndex - (cursorInsertedItem?.length
+                                            ?: 1)
                                     )
                                 }
                             }
 
-                            insertions
+
+                            // Rebuilt the annotatedString preserving insertion styles
+                            val newAnnotatedString = applyStylesToAnnotatedString(
+                                rawText = textFieldDeletion.text,
+                                insertions = insertions
+                            )
+                            textFieldValue.value =
+                                textFieldDeletion.copy(annotatedString = newAnnotatedString)
                         }
 
                         isAdding -> {
@@ -122,18 +148,27 @@ internal fun DiaryEntryScreen(
                                 }
                             }
 
-                            previousInsertions + insertions
+
+                            // Rebuilt the annotatedString preserving insertion styles
+                            val newAnnotatedString = applyStylesToAnnotatedString(
+                                rawText = updatedValue.text,
+                                insertions = previousInsertions + insertions
+                            )
+                            textFieldValue.value =
+                                updatedValue.copy(annotatedString = newAnnotatedString)
                         }
 
-                        else -> insertions
+                        else -> {
+                            // Rebuilt the annotatedString preserving insertion styles
+                            val newAnnotatedString = applyStylesToAnnotatedString(
+                                rawText = updatedValue.text,
+                                insertions = insertions
+                            )
+                            textFieldValue.value = updatedValue.copy(
+                                annotatedString = newAnnotatedString
+                            )
+                        }
                     }
-
-                    // Rebuilt the annotatedString preserving insertion styles
-                    val newAnnotatedString = applyStylesToAnnotatedString(
-                        rawText = updatedValue.text,
-                        insertions = insertionList
-                    )
-                    textFieldValue.value = updatedValue.copy(annotatedString = newAnnotatedString)
                 }
             )
 

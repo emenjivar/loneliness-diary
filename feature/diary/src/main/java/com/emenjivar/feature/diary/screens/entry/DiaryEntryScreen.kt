@@ -189,6 +189,16 @@ internal fun DiaryEntryScreen(
                     .align(Alignment.BottomStart)
                     .imePadding(),
                 onClick = {
+                    // Prevent insertions if the cursor is within the range
+                    // of an already existing insertion
+                    val cursorIndex = textFieldValue.value.selection.start
+                    val cursorInsertedItem = insertions.firstOrNull {
+                        cursorIndex in (it.startIndex + 1)..<it.startIndex + it.length
+                    }
+                    if (cursorInsertedItem != null) {
+                        return@Button
+                    }
+
                     val originalTextField = textFieldValue.value
                     val emotion: InsertedItem = InsertedItem.Emotion(
                         data = listOf(Sad, Angry).random(),

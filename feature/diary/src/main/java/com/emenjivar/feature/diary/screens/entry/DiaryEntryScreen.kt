@@ -1,6 +1,5 @@
 package com.emenjivar.feature.diary.screens.entry
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -75,7 +74,9 @@ internal fun DiaryEntryScreen(
                 .fillMaxSize()
         ) {
             BasicTextField(
-                modifier = Modifier.focusRequester(focusRequester).padding(20.dp),
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .padding(20.dp), // TODO: add dimens file here
                 value = textFieldValue.value,
                 onValueChange = { updatedValue ->
                     val isDeleting = updatedValue.text.length < textFieldValue.value.text.length
@@ -115,7 +116,6 @@ internal fun DiaryEntryScreen(
                                 if (insertion.startIndex + insertion.length > cursorIndex) {
                                     val data = insertion as InsertedItem.Emotion
                                     insertions[index] = data.copy(
-                                        // TODO: use `startIndex = data.startIndex - cursorInsertedItem.length` when deleting the complete insertion
                                         // Shift the insertions by the number of characters of the deleted insertion
                                         // Or just shift by 1 (assuming there's no multi selection)
                                         startIndex = data.startIndex - (cursorInsertedItem?.length
@@ -123,7 +123,6 @@ internal fun DiaryEntryScreen(
                                     )
                                 }
                             }
-
 
                             // Rebuilt the annotatedString preserving insertion styles
                             val newAnnotatedString = applyStylesToAnnotatedString(
@@ -190,13 +189,11 @@ internal fun DiaryEntryScreen(
                     .align(Alignment.BottomStart)
                     .imePadding(),
                 onClick = {
-                    // Prevent insertions if the cursor is within the range
-                    // of an already existing insertion
-                    val cursorIndex = textFieldValue.value.selection.start
-                    val cursorInsertedItem = insertions.firstOrNull {
-                        cursorIndex in (it.startIndex + 1)..<it.startIndex + it.length
-                    }
-                    if (cursorInsertedItem != null) {
+                    if (shouldBlockInsertion(
+                            selection = textFieldValue.value.selection,
+                            insertions = insertions
+                        )
+                    ) {
                         return@Button
                     }
 
@@ -206,30 +203,15 @@ internal fun DiaryEntryScreen(
                         startIndex = originalTextField.selection.start
                     )
 
-                    // Shift next insertions when an element in inserted in the middle of the list
-                    insertions.apply {
-                        sortedBy { it.startIndex }
-                        // var inserted = false
+                    insertItem(
+                        insertions = insertions,
+                        newElement = emotion
+                    )
 
-                        if (isEmpty()) {
-                            add(emotion)
-                            return@apply // Early return
-                        }
-
-                        val before = filter { it.startIndex < emotion.startIndex }
-                        val after = filter { it.startIndex >= emotion.startIndex }
-                            .filterIsInstance<InsertedItem.Emotion>()
-                            .map { item -> item.copy(startIndex = item.startIndex + emotion.length  ) }
-
-                        val updatedList = before + listOf(emotion) + after
-                        clear()
-                        addAll(updatedList)
-                    }
-
-                    // Important to insert the new text in the original string
-                    val beforeText = originalTextField.text.substring(0, emotion.startIndex)
-                    val afterText = originalTextField.text.substring(emotion.startIndex)
-                    val updatedText = beforeText + emotion.text + afterText
+                    val updatedText = insertText(
+                        original = originalTextField.text,
+                        newElement = emotion
+                    )
 
                     textFieldValue.value = originalTextField.copy(
                         annotatedString = applyStylesToAnnotatedString(

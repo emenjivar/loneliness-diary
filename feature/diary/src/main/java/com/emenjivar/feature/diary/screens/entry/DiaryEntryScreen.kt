@@ -1,5 +1,6 @@
 package com.emenjivar.feature.diary.screens.entry
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -25,6 +26,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
@@ -50,7 +52,6 @@ internal fun DiaryEntryScreen(
     val focusRequester = remember { FocusRequester() }
     val textFieldValue = remember { mutableStateOf(TextFieldValue()) }
     val insertions = remember { mutableStateListOf<InsertedItem>() }
-    val sortedInsertion = remember(insertions) { insertions.sortedBy { it.startIndex } }
 
     Scaffold(
         topBar = {
@@ -74,7 +75,7 @@ internal fun DiaryEntryScreen(
                 .fillMaxSize()
         ) {
             BasicTextField(
-                modifier = Modifier.focusRequester(focusRequester),
+                modifier = Modifier.focusRequester(focusRequester).padding(20.dp),
                 value = textFieldValue.value,
                 onValueChange = { updatedValue ->
                     val isDeleting = updatedValue.text.length < textFieldValue.value.text.length
@@ -201,16 +202,39 @@ internal fun DiaryEntryScreen(
 
                     val originalTextField = textFieldValue.value
                     val emotion: InsertedItem = InsertedItem.Emotion(
-                        data = listOf(Sad, Angry).random(),
+                        data = listOf(Sad).random(),
                         startIndex = originalTextField.selection.start
                     )
 
-                    insertions.add(emotion)
+                    // Shift next insertions when an element in inserted in the middle of the list
+                    insertions.apply {
+                        sortedBy { it.startIndex }
+                        // var inserted = false
+
+                        if (isEmpty()) {
+                            add(emotion)
+                            return@apply // Early return
+                        }
+
+                        val before = filter { it.startIndex < emotion.startIndex }
+                        val after = filter { it.startIndex >= emotion.startIndex }
+                            .filterIsInstance<InsertedItem.Emotion>()
+                            .map { item -> item.copy(startIndex = item.startIndex + emotion.length  ) }
+
+                        val updatedList = before + listOf(emotion) + after
+                        clear()
+                        addAll(updatedList)
+                    }
+
+                    // Important to insert the new text in the original string
+                    val beforeText = originalTextField.text.substring(0, emotion.startIndex)
+                    val afterText = originalTextField.text.substring(emotion.startIndex)
+                    val updatedText = beforeText + emotion.text + afterText
 
                     textFieldValue.value = originalTextField.copy(
-                        annotatedString = buildInsertAnnotatedString(
-                            annotatedString = originalTextField.annotatedString,
-                            item = emotion
+                        annotatedString = applyStylesToAnnotatedString(
+                            rawText = updatedText,
+                            insertions = insertions
                         ),
                         // Put the cursor at the end of the inserted word
                         selection = TextRange(

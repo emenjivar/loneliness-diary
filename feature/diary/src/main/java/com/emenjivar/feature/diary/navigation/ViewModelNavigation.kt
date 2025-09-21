@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 sealed class NavigationAction {
     class NavigateTo(val route: NavKey) : NavigationAction()
+
     data object PopBackStack : NavigationAction()
 }
 
@@ -44,6 +45,7 @@ class ViewModelNavigationImp : ViewModelNavigation {
     private val _navigationFlow = MutableSharedFlow<NavigationAction>(
         extraBufferCapacity = 1
     )
+
     override val navigationFlow: SharedFlow<NavigationAction?>
         get() = _navigationFlow.asSharedFlow()
 

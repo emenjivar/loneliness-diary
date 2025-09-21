@@ -14,6 +14,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 
 class AppDataStore(private val context: Context) {
     private val counter = intPreferencesKey("example_counter")
+
     val counterFlow: Flow<Int> = context.dataStore.data.map { preferences ->
         preferences[counter] ?: 0
     }

@@ -8,10 +8,8 @@ import androidx.room.PrimaryKey
 data class DiaryEntryEntity(
     @PrimaryKey(autoGenerate = true)
     val uid: Int = 0,
-
     @ColumnInfo(name = "title")
     val title: String,
-
     @ColumnInfo(name = "text")
     val content: String
 )

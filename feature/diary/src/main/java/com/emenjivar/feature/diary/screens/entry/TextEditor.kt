@@ -5,6 +5,14 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 
+/**
+ * Represents an emotion with its visual and descriptive properties.
+ *
+ * @param name The display name of the emotion. Includes a trailing space
+ *  for seamless text concatenation in UI context.
+ * @param color The visual color representation of this emotion.
+ * @param description A human-readable explanation of the emotion.
+ */
 data class EmotionData(
     val name: String,
     val color: Color,
@@ -12,25 +20,25 @@ data class EmotionData(
 )
 
 val Sad = EmotionData(
-    name = "sad",
+    name = "sad ",
     color = Color(0xff0d47a1),
     description = "Feeling sorrow, typically in response to loss."
 )
 
 val Angry = EmotionData(
-    name = "angry",
+    name = "angry ",
     color = Color(0xffb71c1c),
     description = "Feeling intense displeasure when facing perceived threats, injustice or blocked goals."
 )
 
 val Calm = EmotionData(
-    name = "calm",
+    name = "calm ",
     color = Color(0xff1b5e20),
     description = "Feeling peaceful, relaxed and emotionally balanced."
 )
 
 val Happy = EmotionData(
-    name = "happy",
+    name = "happy ",
     color = Color(0xfffdd835),
     description = "Feeling joy, contentment or pleasure from positive experiences or achievements."
 )
@@ -111,7 +119,9 @@ fun insertItem(insertions: MutableList<InsertedItem>, newElement: InsertedItem) 
         val before = filter { it.startIndex < newElement.startIndex }
         val after = filter { it.startIndex >= newElement.startIndex }
             .filterIsInstance<InsertedItem.Emotion>()
-            .map { item -> item.copy(startIndex = item.startIndex + newElement.length) }
+            .map { item ->
+                item.copy(startIndex = item.startIndex + newElement.length)
+            }
 
         val updatedList = before + listOf(newElement) + after
         clear()

@@ -37,5 +37,15 @@ subprojects {
         reporters {
             reporter(ReporterType.JSON)
         }
+        enableExperimentalRules = true
+        additionalEditorconfig.set(
+            mapOf(
+                "max_line_length" to "off",
+                "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
+                "ktlint_standard_multiline-expression" to "disabled",
+                "ktlint_function_signature_body_expression_wrapping" to "default",
+                "ktlint_standard_annotation" to "disabled"
+            )
+        )
     }
 }

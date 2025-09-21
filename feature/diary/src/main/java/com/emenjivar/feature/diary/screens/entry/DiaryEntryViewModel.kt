@@ -15,7 +15,6 @@ import javax.inject.Inject
 class DiaryEntryViewModel @Inject constructor(
     private val diaryEntryRepository: DiaryEntryRepository
 ) : ViewModel(), ViewModelNavigation by ViewModelNavigationImp() {
-
     fun saveEntry(text: String) {
         viewModelScope.launch(Dispatchers.IO) {
             diaryEntryRepository.insert(

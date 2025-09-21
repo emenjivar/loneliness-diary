@@ -16,7 +16,6 @@ import javax.inject.Inject
 class DiaryBrowseViewModel @Inject constructor(
     diaryEntryRepository: DiaryEntryRepository
 ) : ViewModel(), ViewModelNavigation by ViewModelNavigationImp() {
-
     private val entries = diaryEntryRepository.getAll()
         .stateIn(
             scope = viewModelScope,

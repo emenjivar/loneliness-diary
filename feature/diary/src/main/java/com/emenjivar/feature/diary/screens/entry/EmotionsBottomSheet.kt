@@ -45,7 +45,7 @@ fun EmotionsBottomSheet(
                     sheetState.hide()
                 }
             }
-        ){
+        ) {
             EmotionBottomSheetLayout(
                 emotions = emotions,
                 onClick = onEmotionClick
@@ -93,7 +93,7 @@ private fun EmotionItem(
                 .background(emotion.color)
         )
         Column(
-            modifier = Modifier.padding(vertical = 8.dp),
+            modifier = Modifier.padding(vertical = 8.dp)
         ) {
             Text(
                 text = emotion.name,

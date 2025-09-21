@@ -43,7 +43,6 @@ val Happy = EmotionData(
     description = "Feeling joy, contentment or pleasure from positive experiences or achievements."
 )
 
-
 sealed class InsertedItem(
     val text: String,
     open val color: Color,
@@ -53,10 +52,10 @@ sealed class InsertedItem(
         val data: EmotionData,
         override val startIndex: Int
     ) : InsertedItem(
-        text = data.name,
-        color = data.color,
-        startIndex = startIndex
-    )
+            text = data.name,
+            color = data.color,
+            startIndex = startIndex
+        )
 
     val length = text.length
 }
@@ -107,7 +106,10 @@ fun shouldBlockInsertion(
  * @param insertions The mutable list to insert into.
  * @param newElement The element to insert.
  */
-fun insertItem(insertions: MutableList<InsertedItem>, newElement: InsertedItem) {
+fun insertItem(
+    insertions: MutableList<InsertedItem>,
+    newElement: InsertedItem
+) {
     insertions.apply {
         sortedBy { it.startIndex }
 
@@ -136,7 +138,10 @@ fun insertItem(insertions: MutableList<InsertedItem>, newElement: InsertedItem) 
  * @param newElement The element to insert.
  * @return The updated string with the new text inserted.
  */
-fun insertText(original: String, newElement: InsertedItem): String {
+fun insertText(
+    original: String,
+    newElement: InsertedItem
+): String {
     // Important to insert the new text in the original string
     val beforeText = original.substring(0, newElement.startIndex)
     val afterText = original.substring(newElement.startIndex)

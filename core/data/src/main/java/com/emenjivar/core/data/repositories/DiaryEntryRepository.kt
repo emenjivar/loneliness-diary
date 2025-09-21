@@ -10,17 +10,19 @@ import kotlinx.coroutines.flow.map
 
 interface DiaryEntryRepository {
     fun getAll(): Flow<List<DiaryEntry>>
+
     suspend fun insert(entry: DiaryEntry)
 }
 
 internal class DiaryEntryRepositoryImp(
     private val diaryEntryDao: DiaryEntryDao
 ) : DiaryEntryRepository {
-    override fun getAll() = diaryEntryDao.getAll()
-        .distinctUntilChanged()
-        .map { entities ->
-            entities.map { it.toModel() }
-        }
+    override fun getAll() =
+        diaryEntryDao.getAll()
+            .distinctUntilChanged()
+            .map { entities ->
+                entities.map { it.toModel() }
+            }
 
     override suspend fun insert(entry: DiaryEntry) {
         diaryEntryDao.insert(entry.toEntity())

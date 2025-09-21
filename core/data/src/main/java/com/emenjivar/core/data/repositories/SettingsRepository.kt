@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 interface SettingsRepository {
     val counter: Flow<Int>
+
     suspend fun setCounter(value: Int)
 }
 
@@ -16,6 +17,7 @@ class SettingsRepositoryImp(
     private val dataStore = AppDataStore(context)
 
     override val counter = dataStore.counterFlow.distinctUntilChanged()
+
     override suspend fun setCounter(value: Int) {
         dataStore.setCounter(value)
     }

@@ -107,7 +107,8 @@ internal fun DiaryEntryScreen(
             BasicTextField(
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .padding(horizontal = 20.dp), // TODO: add dimens file here
+                    // TODO: add dimens file here
+                    .padding(horizontal = 20.dp),
                 value = textFieldValue.value,
                 onValueChange = { updatedValue ->
                     val isDeleting = updatedValue.text.length < textFieldValue.value.text.length
@@ -131,8 +132,9 @@ internal fun DiaryEntryScreen(
                                     startIndex = 0,
                                     endIndex = cursorInsertedItem.startIndex
                                 )
-                                val stringAfterInsertedText =
-                                    textFieldValue.value.text.substring(startIndex = cursorInsertedItem.startIndex + cursorInsertedItem.length)
+                                val stringAfterInsertedText = textFieldValue.value.text.substring(
+                                    startIndex = cursorInsertedItem.startIndex + cursorInsertedItem.length
+                                )
                                 val stringWithoutInsertedText =
                                     stringBeforeInsertedText + stringAfterInsertedText
                                 textFieldDeletion = textFieldValue.value.copy(
@@ -141,7 +143,6 @@ internal fun DiaryEntryScreen(
                                 )
                             }
 
-
                             // Apply a negative offset to the insertions ahead the cursor
                             insertions.forEachIndexed { index, insertion ->
                                 if (insertion.startIndex + insertion.length > cursorIndex) {
@@ -149,8 +150,7 @@ internal fun DiaryEntryScreen(
                                     insertions[index] = data.copy(
                                         // Shift the insertions by the number of characters of the deleted insertion
                                         // Or just shift by 1 (assuming there's no multi selection)
-                                        startIndex = data.startIndex - (cursorInsertedItem?.length
-                                            ?: 1)
+                                        startIndex = data.startIndex - (cursorInsertedItem?.length ?: 1)
                                     )
                                 }
                             }
@@ -189,7 +189,6 @@ internal fun DiaryEntryScreen(
                                     )
                                 }
                             }
-
 
                             // Rebuilt the annotatedString preserving insertion styles
                             val newAnnotatedString = applyStylesToAnnotatedString(

@@ -86,12 +86,13 @@ internal fun DiaryBrowseContent(
             }
 
             Button(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(
-                        bottom = paddingValues.calculateBottomPadding(),
-                        end = 12.dp
-                    ),
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(
+                            bottom = paddingValues.calculateBottomPadding(),
+                            end = 12.dp
+                        ),
                 onClick = uiState.navigateToNewEntry
             ) {
                 Text("New entry")

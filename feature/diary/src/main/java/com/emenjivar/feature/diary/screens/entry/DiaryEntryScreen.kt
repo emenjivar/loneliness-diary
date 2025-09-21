@@ -18,10 +18,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +68,9 @@ internal fun DiaryEntryScreen(
     val focusRequester = remember { FocusRequester() }
     val textFieldValue = remember { mutableStateOf(TextFieldValue()) }
     val insertions = remember { mutableStateListOf<InsertedItem>() }
+    val isSaveEnabled by remember {
+        derivedStateOf { textFieldValue.value.text.isNotBlank() }
+    }
     val sheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
     val localKeyboard = LocalSoftwareKeyboardController.current
@@ -80,6 +86,14 @@ internal fun DiaryEntryScreen(
                             // TODO: use an string resource here
                             contentDescription = "Navigate back"
                         )
+                    }
+                },
+                actions = {
+                    TextButton(
+                        enabled = isSaveEnabled,
+                        onClick = { uiState.saveEntry(textFieldValue.value.text) }
+                    ) {
+                        Text(text = "Save")
                     }
                 }
             )

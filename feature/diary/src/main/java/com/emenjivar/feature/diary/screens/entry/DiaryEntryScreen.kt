@@ -1,35 +1,47 @@
 package com.emenjivar.feature.diary.screens.entry
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun DiaryEntryScreen(
@@ -43,6 +55,8 @@ internal fun DiaryEntryScreen(
     )
 }
 
+private const val DELAY_FOCUS = 500L
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DiaryEntryScreen(
@@ -51,6 +65,9 @@ internal fun DiaryEntryScreen(
     val focusRequester = remember { FocusRequester() }
     val textFieldValue = remember { mutableStateOf(TextFieldValue()) }
     val insertions = remember { mutableStateListOf<InsertedItem>() }
+    val sheetState = rememberModalBottomSheetState()
+    val coroutineScope = rememberCoroutineScope()
+    val localKeyboard = LocalSoftwareKeyboardController.current
 
     Scaffold(
         topBar = {
@@ -76,7 +93,7 @@ internal fun DiaryEntryScreen(
             BasicTextField(
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .padding(20.dp), // TODO: add dimens file here
+                    .padding(horizontal = 20.dp), // TODO: add dimens file here
                 value = textFieldValue.value,
                 onValueChange = { updatedValue ->
                     val isDeleting = updatedValue.text.length < textFieldValue.value.text.length
@@ -183,51 +200,68 @@ internal fun DiaryEntryScreen(
                 }
             )
 
-
-            Button(
+            HorizontalActions(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .imePadding(),
-                onClick = {
-                    if (shouldBlockInsertion(
-                            selection = textFieldValue.value.selection,
-                            insertions = insertions
-                        )
-                    ) {
-                        return@Button
+                    .imePadding()
+            ) { action ->
+                when (action) {
+                    DiaryEntryAction.EMOTION -> {
+                        coroutineScope.launch {
+                            localKeyboard?.hide()
+                            sheetState.show()
+                        }
                     }
-
-                    val originalTextField = textFieldValue.value
-                    val emotion: InsertedItem = InsertedItem.Emotion(
-                        data = listOf(Sad).random(),
-                        startIndex = originalTextField.selection.start
-                    )
-
-                    insertItem(
-                        insertions = insertions,
-                        newElement = emotion
-                    )
-
-                    val updatedText = insertText(
-                        original = originalTextField.text,
-                        newElement = emotion
-                    )
-
-                    textFieldValue.value = originalTextField.copy(
-                        annotatedString = applyStylesToAnnotatedString(
-                            rawText = updatedText,
-                            insertions = insertions
-                        ),
-                        // Put the cursor at the end of the inserted word
-                        selection = TextRange(
-                            originalTextField.selection.end + emotion.length
-                        )
-                    )
-                }) {
-                Text("Insert")
+                }
             }
         }
     }
+
+    EmotionsBottomSheet(
+        sheetState = sheetState,
+        emotions = listOf(Sad, Angry, Calm, Happy),
+        onEmotionClick = { selectedEmotion ->
+            coroutineScope.launch {
+                sheetState.hide()
+                if (shouldBlockInsertion(
+                        selection = textFieldValue.value.selection,
+                        insertions = insertions
+                    )
+                ) {
+                    return@launch
+                }
+
+                val originalTextField = textFieldValue.value
+                val emotion: InsertedItem = InsertedItem.Emotion(
+                    data = selectedEmotion,
+                    startIndex = originalTextField.selection.start
+                )
+
+                insertItem(
+                    insertions = insertions,
+                    newElement = emotion
+                )
+
+                val updatedText = insertText(
+                    original = originalTextField.text,
+                    newElement = emotion
+                )
+
+                textFieldValue.value = originalTextField.copy(
+                    annotatedString = applyStylesToAnnotatedString(
+                        rawText = updatedText,
+                        insertions = insertions
+                    ),
+                    // Put the cursor at the end of the inserted word
+                    selection = TextRange(
+                        originalTextField.selection.end + emotion.length
+                    )
+                )
+
+                localKeyboard?.show()
+            }
+        }
+    )
 
     LaunchedEffect(Unit) {
         delay(DELAY_FOCUS)
@@ -235,4 +269,38 @@ internal fun DiaryEntryScreen(
     }
 }
 
-private const val DELAY_FOCUS = 500L
+@Composable
+private fun HorizontalActions(
+    modifier: Modifier = Modifier,
+    onClick: (DiaryEntryAction) -> Unit
+) {
+    Row(
+        modifier = modifier.horizontalScroll(rememberScrollState())
+    ) {
+        Spacer(modifier = Modifier.width(20.dp))
+        DiaryEntryAction.entries.forEach { action ->
+            AssistChip(
+                modifier = Modifier.semantics {
+                    contentDescription = action.contentDescription
+                },
+                onClick = {
+                    onClick(action)
+                },
+                label = {
+                    Text(text = action.title)
+                }
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun DiaryEntryScreenPreview() {
+    DiaryEntryScreen(
+        uiState = DiaryEntryUiState(
+            saveEntry = {},
+            popBackStack = {}
+        )
+    )
+}

@@ -7,27 +7,32 @@ import androidx.compose.ui.text.buildAnnotatedString
 
 data class EmotionData(
     val name: String,
-    val color: Color
+    val color: Color,
+    val description: String
 )
 
 val Sad = EmotionData(
     name = "sad",
-    color = Color.Blue
+    color = Color(0xff0d47a1),
+    description = "Feeling sorrow, typically in response to loss."
 )
 
 val Angry = EmotionData(
     name = "angry",
-    color = Color.Red
+    color = Color(0xffb71c1c),
+    description = "Feeling intense displeasure when facing perceived threats, injustice or blocked goals."
 )
 
 val Calm = EmotionData(
     name = "calm",
-    color = Color.Green
+    color = Color(0xff1b5e20),
+    description = "Feeling peaceful, relaxed and emotionally balanced."
 )
 
 val Happy = EmotionData(
     name = "happy",
-    color = Color.Yellow
+    color = Color(0xfffdd835),
+    description = "Feeling joy, contentment or pleasure from positive experiences or achievements."
 )
 
 

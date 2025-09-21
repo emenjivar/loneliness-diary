@@ -59,6 +59,7 @@ dependencies {
     // DI
     implementation(libs.dagger.hilt)
     implementation(libs.hilt.compose)
+    debugImplementation(libs.ui.tooling)
     ksp(libs.dagger.hilt.compiler)
 
     // Navigation

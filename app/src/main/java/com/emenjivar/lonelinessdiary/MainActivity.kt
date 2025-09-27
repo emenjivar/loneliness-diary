@@ -4,9 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.emenjivar.feature.diary.navigation.NavigationAction
 import com.emenjivar.feature.diary.navigation.featureGraph
 import com.emenjivar.feature.diary.screens.browse.DiaryBrowseRoute
@@ -25,6 +28,13 @@ class MainActivity : ComponentActivity() {
             LonelinessDiaryTheme {
                 NavDisplay(
                     backStack = backStack,
+                    entryDecorators = listOf(
+                        // Default decorators for managing scenes and saving state
+                        rememberSceneSetupNavEntryDecorator(),
+                        rememberSavedStateNavEntryDecorator(),
+                        // Decorator for scoping viewModels to the navEntries
+                        rememberViewModelStoreNavEntryDecorator()
+                    ),
                     entryProvider = entryProvider {
                         featureGraph(
                             onNavigateAction = { action ->

@@ -4,6 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -35,6 +40,12 @@ class MainActivity : ComponentActivity() {
                         // Decorator for scoping viewModels to the navEntries
                         rememberViewModelStoreNavEntryDecorator()
                     ),
+                    transitionSpec = {
+                        slideInHorizontally(initialOffsetX = { it }) togetherWith ExitTransition.KeepUntilTransitionsFinished
+                    },
+                    popTransitionSpec = {
+                        EnterTransition.None togetherWith slideOutHorizontally(targetOffsetX = { it })
+                    },
                     entryProvider = entryProvider {
                         featureGraph(
                             onNavigateAction = { action ->

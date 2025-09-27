@@ -3,6 +3,8 @@ package com.emenjivar.core.data.di
 import android.content.Context
 import com.emenjivar.core.data.repositories.DiaryEntryRepository
 import com.emenjivar.core.data.repositories.DiaryEntryRepositoryImp
+import com.emenjivar.core.data.repositories.EmotionsRepository
+import com.emenjivar.core.data.repositories.EmotionsRepositoryImp
 import com.emenjivar.core.data.repositories.SettingsRepository
 import com.emenjivar.core.data.repositories.SettingsRepositoryImp
 import com.emenjivar.core.database.daos.DiaryEntryDao
@@ -28,4 +30,7 @@ object RepositoryModule {
     ): DiaryEntryRepository = DiaryEntryRepositoryImp(
         diaryEntryDao = diaryEntryDao
     )
+
+    @Provides
+    fun providesEmotionsRepository(): EmotionsRepository = EmotionsRepositoryImp()
 }

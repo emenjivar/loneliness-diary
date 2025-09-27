@@ -41,9 +41,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @Composable
@@ -65,6 +67,7 @@ private const val DELAY_FOCUS = 500L
 internal fun DiaryEntryScreen(
     uiState: DiaryEntryUiState
 ) {
+    val emotions by uiState.emotions.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
     val textFieldValue = remember { mutableStateOf(TextFieldValue()) }
     val insertions = remember { mutableStateListOf<InsertedItem>() }
@@ -232,7 +235,7 @@ internal fun DiaryEntryScreen(
 
     EmotionsBottomSheet(
         sheetState = sheetState,
-        emotions = listOf(Sad, Angry, Calm, Happy),
+        emotions = emotions,
         onEmotionClick = { selectedEmotion ->
             coroutineScope.launch {
                 sheetState.hide()
@@ -312,6 +315,7 @@ private fun HorizontalActions(
 private fun DiaryEntryScreenPreview() {
     DiaryEntryScreen(
         uiState = DiaryEntryUiState(
+            emotions = MutableStateFlow(emptyList()),
             saveEntry = { _, _ -> },
             popBackStack = {}
         )

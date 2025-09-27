@@ -1,0 +1,17 @@
+package com.emenjivar.core.data.models
+
+import android.graphics.Color
+
+/**
+ * Represents an emotion with its visual and descriptive properties.
+ *
+ * @param name The display name of the emotion. Includes a trailing space
+ *  for seamless text concatenation in UI context.
+ * @param color The visual color representation of this emotion.
+ * @param description A human-readable explanation of the emotion.
+ */
+data class EmotionData(
+    val name: String,
+    val color: Long,
+    val description: String
+)

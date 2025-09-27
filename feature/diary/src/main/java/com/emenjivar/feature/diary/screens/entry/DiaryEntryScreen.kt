@@ -48,9 +48,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * @param id Entry id, this value is suppose to be sent as a navigation parameter.
+ */
 @Composable
 internal fun DiaryEntryScreen(
-    viewModel: DiaryEntryViewModel = hiltViewModel(),
+    id: Long,
+    viewModel: DiaryEntryViewModel = hiltViewModel<DiaryEntryViewModel, DiaryEntryViewModel.Factory>(
+        creationCallback = { factory -> factory.create(id) }
+    ),
     onNavigateAction: (NavigationAction) -> Unit
 ) {
     DiaryEntryScreen(uiState = viewModel.uiState)

@@ -1,5 +1,6 @@
 package com.emenjivar.feature.diary.screens.entry
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emenjivar.core.data.models.DiaryEntry
@@ -8,18 +9,26 @@ import com.emenjivar.core.data.repositories.DiaryEntryRepository
 import com.emenjivar.core.data.repositories.EmotionsRepository
 import com.emenjivar.feature.diary.navigation.ViewModelNavigation
 import com.emenjivar.feature.diary.navigation.ViewModelNavigationImp
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class DiaryEntryViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = DiaryEntryViewModel.Factory::class)
+class DiaryEntryViewModel @AssistedInject constructor(
     private val diaryEntryRepository: DiaryEntryRepository,
-    emotionsRepository: EmotionsRepository
+    @Assisted private val id: Long,
+    emotionsRepository: EmotionsRepository,
 ) : ViewModel(), ViewModelNavigation by ViewModelNavigationImp() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(id: Long): DiaryEntryViewModel
+    }
 
     private val emotions = emotionsRepository.getAll()
         .stateIn(
@@ -48,6 +57,11 @@ class DiaryEntryViewModel @Inject constructor(
             )
             popBackStack()
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.wtf("DiaryEntryViewModel", "hola")
     }
 
     val uiState = DiaryEntryUiState(

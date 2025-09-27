@@ -24,12 +24,11 @@ class DiaryBrowseViewModel @Inject constructor(
         )
 
     private fun navigateToNewEntry() {
-        navigate(DiaryEntryRoute)
+        navigate(DiaryEntryRoute())
     }
 
-    private fun navigateToDetailEntry(uid: Long) {
-        // TODO: add detail
-        Log.wtf("DiaryBrowseViewModel", "uid: $uid")
+    private fun navigateToDetailEntry(id: Long) {
+        navigate(DiaryEntryRoute(id = id))
     }
 
     val uiState = DiaryBrowseUiState(

@@ -3,6 +3,7 @@ package com.emenjivar.feature.diary.screens.entry
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emenjivar.core.data.models.DiaryEntry
+import com.emenjivar.core.data.models.DiaryEntryEmotion
 import com.emenjivar.core.data.repositories.DiaryEntryRepository
 import com.emenjivar.feature.diary.navigation.ViewModelNavigation
 import com.emenjivar.feature.diary.navigation.ViewModelNavigationImp
@@ -15,12 +16,22 @@ import javax.inject.Inject
 class DiaryEntryViewModel @Inject constructor(
     private val diaryEntryRepository: DiaryEntryRepository
 ) : ViewModel(), ViewModelNavigation by ViewModelNavigationImp() {
-    fun saveEntry(text: String) {
+    private fun saveEntry(text: String, insertedItems: List<InsertedItem>) {
         viewModelScope.launch(Dispatchers.IO) {
+            val entries = insertedItems.map {
+                val emotion = it as InsertedItem.Emotion
+                DiaryEntryEmotion(
+                    emotion = emotion.text,
+                    insertionIndex = emotion.startIndex
+                )
+            }
+
+
             diaryEntryRepository.insert(
                 DiaryEntry(
                     title = "Mock title",
-                    content = text
+                    content = text,
+                    entries = entries
                 )
             )
             popBackStack()

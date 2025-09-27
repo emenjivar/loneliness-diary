@@ -4,6 +4,7 @@ import com.emenjivar.core.data.models.DiaryEntry
 import com.emenjivar.core.data.models.toEntity
 import com.emenjivar.core.data.models.toModel
 import com.emenjivar.core.database.daos.DiaryEntryDao
+import com.emenjivar.core.database.entities.DiaryEntryWithInsertionsEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -17,14 +18,13 @@ interface DiaryEntryRepository {
 internal class DiaryEntryRepositoryImp(
     private val diaryEntryDao: DiaryEntryDao
 ) : DiaryEntryRepository {
-    override fun getAll() =
-        diaryEntryDao.getAll()
-            .distinctUntilChanged()
-            .map { entities ->
-                entities.map { it.toModel() }
-            }
+    override fun getAll() = diaryEntryDao.getAll()
+        .distinctUntilChanged()
+        .map { entities ->
+            entities.map { it.toModel() }
+        }
 
     override suspend fun insert(entry: DiaryEntry) {
-        diaryEntryDao.insert(entry.toEntity())
+        diaryEntryDao.insertDiaryEntryWithEmotions(entry.toEntity())
     }
 }

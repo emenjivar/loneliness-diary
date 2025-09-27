@@ -27,7 +27,7 @@ class DiaryBrowseViewModel @Inject constructor(
         navigate(DiaryEntryRoute)
     }
 
-    private fun navigateToDetailEntry(uid: Int) {
+    private fun navigateToDetailEntry(uid: Long) {
         // TODO: add detail
         Log.wtf("DiaryBrowseViewModel", "uid: $uid")
     }

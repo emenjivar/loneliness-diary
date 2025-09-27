@@ -91,7 +91,7 @@ internal fun DiaryEntryScreen(
                 actions = {
                     TextButton(
                         enabled = isSaveEnabled,
-                        onClick = { uiState.saveEntry(textFieldValue.value.text) }
+                        onClick = { uiState.saveEntry(textFieldValue.value.text, insertions) }
                     ) {
                         Text(text = "Save")
                     }
@@ -312,7 +312,7 @@ private fun HorizontalActions(
 private fun DiaryEntryScreenPreview() {
     DiaryEntryScreen(
         uiState = DiaryEntryUiState(
-            saveEntry = {},
+            saveEntry = { _, _ -> },
             popBackStack = {}
         )
     )

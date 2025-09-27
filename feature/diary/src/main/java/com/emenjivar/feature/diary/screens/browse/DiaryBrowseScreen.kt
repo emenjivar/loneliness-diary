@@ -74,12 +74,12 @@ internal fun DiaryBrowseContent(
             ) {
                 items(
                     items = entries,
-                    key = { entry -> entry.uid }
+                    key = { entry -> entry.id }
                 ) { entry ->
                     DiaryEntry(
                         entry = entry,
                         onClick = {
-                            uiState.navigateToDetailEntry(entry.uid)
+                            uiState.navigateToDetailEntry(entry.id)
                         }
                     )
                 }

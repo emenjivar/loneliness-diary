@@ -1,4 +1,4 @@
-@file:Suppress("MagicNumber")
+@file:Suppress("MagicNumber", "MatchingDeclarationName")
 package com.emenjivar.feature.diary.screens.entry
 
 import androidx.compose.ui.graphics.Color

@@ -1,6 +1,5 @@
 package com.emenjivar.feature.diary.screens.browse
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emenjivar.core.data.repositories.DiaryEntryRepository

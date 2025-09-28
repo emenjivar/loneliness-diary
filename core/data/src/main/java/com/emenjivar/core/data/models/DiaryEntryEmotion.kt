@@ -6,7 +6,7 @@ data class DiaryEntryEmotion(
     val id: Long = 0,
     val entryId: Long = 0L,
     val emotion: String,
-    val insertionIndex: Int,
+    val insertionIndex: Int
 )
 
 fun DiaryEntryEmotionEntity.toModel() = DiaryEntryEmotion(

@@ -173,8 +173,7 @@ internal fun DiaryEntryScreen(
                                     insertions[index] = data.copy(
                                         // Shift the insertions by the number of characters of the deleted insertion
                                         // Or just shift by 1 (assuming there's no multi selection)
-                                        startIndex = data.startIndex - (cursorInsertedItem?.length
-                                            ?: 1)
+                                        startIndex = data.startIndex - (cursorInsertedItem?.length ?: 1)
                                     )
                                 }
                             }

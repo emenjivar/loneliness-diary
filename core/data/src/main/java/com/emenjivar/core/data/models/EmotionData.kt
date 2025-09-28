@@ -1,7 +1,5 @@
 package com.emenjivar.core.data.models
 
-import android.graphics.Color
-
 /**
  * Represents an emotion with its visual and descriptive properties.
  *
@@ -18,7 +16,8 @@ data class EmotionData(
     companion object {
         val empty = EmotionData(
             name = "",
-            color = 0xff000000, // Default black
+            // Default black
+            color = 0xff000000,
             description = ""
         )
     }

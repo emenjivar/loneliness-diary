@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 
 private const val SUBSCRIBED_TIME = 5_000L
+
 fun <T> Flow<T>.stateInDefault(
     scope: CoroutineScope,
     initialValue: T

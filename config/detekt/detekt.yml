@@ -653,6 +653,8 @@ style:
     excludeImportStatements: true
     excludeCommentStatements: false
     excludeRawStrings: true
+    excludes:
+     - '**/MainActivity.kt'
   MayBeConst:
     active: true
   ModifierOrder:

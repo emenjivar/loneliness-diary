@@ -25,9 +25,8 @@ import kotlinx.coroutines.launch
 class DiaryEntryViewModel @AssistedInject constructor(
     private val diaryEntryRepository: DiaryEntryRepository,
     @Assisted private val id: Long,
-    emotionsRepository: EmotionsRepository,
+    emotionsRepository: EmotionsRepository
 ) : ViewModel(), ViewModelNavigation by ViewModelNavigationImp() {
-
     @AssistedFactory
     interface Factory {
         fun create(id: Long): DiaryEntryViewModel
@@ -68,7 +67,10 @@ class DiaryEntryViewModel @AssistedInject constructor(
         initialValue = emptyList()
     )
 
-    private fun saveEntry(text: String, insertedItems: List<InsertedItem>) {
+    private fun saveEntry(
+        text: String,
+        insertedItems: List<InsertedItem>
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             val entries = insertedItems.map {
                 val emotion = it as InsertedItem.Emotion

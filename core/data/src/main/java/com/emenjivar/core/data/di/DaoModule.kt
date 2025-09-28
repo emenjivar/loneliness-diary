@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.emenjivar.core.database.AppDatabase
 import com.emenjivar.core.database.daos.DiaryEntryDao
+import com.emenjivar.core.database.daos.DiaryEntryEmotionDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,4 +27,9 @@ object DaoModule {
     fun providesDiaryEntryDao(
         database: AppDatabase
     ): DiaryEntryDao = database.diaryEntryDao()
+
+    @Provides
+    fun providesDiaryEntryEmotionDao(
+        database: AppDatabase
+    ): DiaryEntryEmotionDao = database.diaryEntryEmotionDao()
 }

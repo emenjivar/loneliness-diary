@@ -4,4 +4,4 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object DiaryEntryRoute : NavKey
+data class DiaryEntryRoute(val id: Long = 0L) : NavKey

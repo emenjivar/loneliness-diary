@@ -41,14 +41,23 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * @param route Route with navigation arguments.
+ */
 @Composable
 internal fun DiaryEntryScreen(
-    viewModel: DiaryEntryViewModel = hiltViewModel(),
+    route: DiaryEntryRoute,
+    viewModel: DiaryEntryViewModel = hiltViewModel<DiaryEntryViewModel, DiaryEntryViewModel.Factory>(
+        creationCallback = { factory -> factory.create(route) }
+    ),
     onNavigateAction: (NavigationAction) -> Unit
 ) {
     DiaryEntryScreen(uiState = viewModel.uiState)
@@ -65,10 +74,24 @@ private const val DELAY_FOCUS = 500L
 internal fun DiaryEntryScreen(
     uiState: DiaryEntryUiState
 ) {
+    val emotions by uiState.emotions.collectAsStateWithLifecycle()
+    val initialText by uiState.initialText.collectAsStateWithLifecycle()
+    val initialInsertions by uiState.initialInsertions.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
-    val textFieldValue = remember { mutableStateOf(TextFieldValue()) }
-    val insertions = remember { mutableStateListOf<InsertedItem>() }
-    val isSaveEnabled by remember {
+    val textFieldValue = remember(initialText) {
+        mutableStateOf(
+            TextFieldValue(
+                text = initialText,
+                selection = TextRange(initialText.length.coerceAtLeast(0))
+            )
+        )
+    }
+    val insertions = remember(initialInsertions) {
+        mutableStateListOf<InsertedItem>().apply {
+            addAll(initialInsertions)
+        }
+    }
+    val isSaveEnabled by remember(initialText) {
         derivedStateOf { textFieldValue.value.text.isNotBlank() }
     }
     val sheetState = rememberModalBottomSheetState()
@@ -91,7 +114,7 @@ internal fun DiaryEntryScreen(
                 actions = {
                     TextButton(
                         enabled = isSaveEnabled,
-                        onClick = { uiState.saveEntry(textFieldValue.value.text) }
+                        onClick = { uiState.saveEntry(textFieldValue.value.text, insertions) }
                     ) {
                         Text(text = "Save")
                     }
@@ -232,7 +255,7 @@ internal fun DiaryEntryScreen(
 
     EmotionsBottomSheet(
         sheetState = sheetState,
-        emotions = listOf(Sad, Angry, Calm, Happy),
+        emotions = emotions,
         onEmotionClick = { selectedEmotion ->
             coroutineScope.launch {
                 sheetState.hide()
@@ -312,7 +335,35 @@ private fun HorizontalActions(
 private fun DiaryEntryScreenPreview() {
     DiaryEntryScreen(
         uiState = DiaryEntryUiState(
-            saveEntry = {},
+            emotions = MutableStateFlow(emptyList()),
+            initialText = MutableStateFlow(""),
+            initialInsertions = MutableStateFlow(emptyList()),
+            saveEntry = { _, _ -> },
+            popBackStack = {}
+        )
+    )
+}
+
+@Preview
+@Composable
+private fun DiaryEntryScreenWithDataPreview() {
+    DiaryEntryScreen(
+        uiState = DiaryEntryUiState(
+            emotions = MutableStateFlow(emptyList()),
+            initialText = MutableStateFlow("Today i feel sad"),
+            initialInsertions = MutableStateFlow(
+                listOf(
+                    InsertedItem.Emotion(
+                        data = EmotionData(
+                            name = "sad",
+                            color = 0xff0d47a1,
+                            description = ""
+                        ),
+                        startIndex = 13
+                    )
+                )
+            ),
+            saveEntry = { _, _ -> },
             popBackStack = {}
         )
     )

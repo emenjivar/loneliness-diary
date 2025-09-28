@@ -22,11 +22,13 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.emenjivar.core.data.models.EmotionData
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,7 +92,7 @@ private fun EmotionItem(
             modifier = modifier
                 .fillMaxHeight()
                 .width(5.dp)
-                .background(emotion.color)
+                .background(Color(emotion.color))
         )
         Column(
             modifier = Modifier.padding(vertical = 8.dp)
@@ -110,8 +112,15 @@ private fun EmotionItem(
 @Preview
 @Composable
 private fun EmotionsBottomSheetPreview() {
+    val sad = remember {
+        EmotionData(
+            name = "sad ",
+            color = 0xff0d47a1,
+            description = "Feeling sorrow, typically in response to loss."
+        )
+    }
     EmotionBottomSheetLayout(
-        emotions = listOf(Sad, Angry, Calm, Happy),
+        emotions = listOf(sad),
         onClick = {}
     )
 }

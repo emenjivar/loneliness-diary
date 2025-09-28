@@ -1,54 +1,11 @@
-@file:Suppress("MagicNumber")
+@file:Suppress("MagicNumber", "MatchingDeclarationName")
 package com.emenjivar.feature.diary.screens.entry
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
-
-// TODO: move this to a different module, maybe `Theme` or `UI`
-private val BlueDarken4 = Color(0xff0d47a1)
-private val RedDarken4 = Color(0xffb71c1c)
-private val GreenDarken4 = Color(0xff1b5e20)
-private val YellowDarken1 = Color(0xfffdd835)
-
-/**
- * Represents an emotion with its visual and descriptive properties.
- *
- * @param name The display name of the emotion. Includes a trailing space
- *  for seamless text concatenation in UI context.
- * @param color The visual color representation of this emotion.
- * @param description A human-readable explanation of the emotion.
- */
-data class EmotionData(
-    val name: String,
-    val color: Color,
-    val description: String
-)
-
-val Sad = EmotionData(
-    name = "sad ",
-    color = BlueDarken4,
-    description = "Feeling sorrow, typically in response to loss."
-)
-
-val Angry = EmotionData(
-    name = "angry ",
-    color = RedDarken4,
-    description = "Feeling intense displeasure when facing perceived threats, injustice or blocked goals."
-)
-
-val Calm = EmotionData(
-    name = "calm ",
-    color = GreenDarken4,
-    description = "Feeling peaceful, relaxed and emotionally balanced."
-)
-
-val Happy = EmotionData(
-    name = "happy ",
-    color = YellowDarken1,
-    description = "Feeling joy, contentment or pleasure from positive experiences or achievements."
-)
+import com.emenjivar.core.data.models.EmotionData
 
 sealed class InsertedItem(
     val text: String,
@@ -60,7 +17,7 @@ sealed class InsertedItem(
         override val startIndex: Int
     ) : InsertedItem(
             text = data.name,
-            color = data.color,
+            color = Color(data.color),
             startIndex = startIndex
         )
 

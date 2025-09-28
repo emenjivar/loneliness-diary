@@ -14,9 +14,9 @@ fun EntryProviderBuilder<NavKey>.featureGraph(
     entry<DiaryBrowseRoute> {
         DiaryBrowseScreen(onNavigateAction = onNavigateAction)
     }
-    entry<DiaryEntryRoute> {
+    entry<DiaryEntryRoute> { route ->
         DiaryEntryScreen(
-            id = it.id,
+            route = route,
             onNavigateAction = onNavigateAction
         )
     }

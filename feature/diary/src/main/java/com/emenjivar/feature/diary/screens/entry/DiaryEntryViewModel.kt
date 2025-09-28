@@ -24,12 +24,12 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = DiaryEntryViewModel.Factory::class)
 class DiaryEntryViewModel @AssistedInject constructor(
     private val diaryEntryRepository: DiaryEntryRepository,
-    @Assisted private val id: Long,
+    @Assisted private val route: DiaryEntryRoute,
     emotionsRepository: EmotionsRepository
 ) : ViewModel(), ViewModelNavigation by ViewModelNavigationImp() {
     @AssistedFactory
     interface Factory {
-        fun create(id: Long): DiaryEntryViewModel
+        fun create(route: DiaryEntryRoute): DiaryEntryViewModel
     }
 
     private val emotions = emotionsRepository.getAll()
@@ -42,7 +42,7 @@ class DiaryEntryViewModel @AssistedInject constructor(
         emotions.associateBy { it.name }
     }
 
-    private val entry = diaryEntryRepository.findById(id)
+    private val entry = diaryEntryRepository.findById(route.id)
 
     private val initialText = entry
         .filterNotNull()
@@ -82,7 +82,7 @@ class DiaryEntryViewModel @AssistedInject constructor(
 
             diaryEntryRepository.insert(
                 DiaryEntry(
-                    id = id,
+                    id = route.id,
                     title = "Mock title",
                     content = text,
                     emotions = entries

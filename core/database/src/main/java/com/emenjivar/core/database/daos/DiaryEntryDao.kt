@@ -20,4 +20,7 @@ interface DiaryEntryDao {
     @Transaction
     @Query("SELECT * FROM diary_entry WHERE id=:id")
     fun getEntryWithInsertions(id: Long): Flow<DiaryEntryWithInsertionsEntity?>
+
+    @Query("SELECT * FROM diary_entry WHERE id=:id")
+    suspend fun getById(id: Long): DiaryEntryEntity?
 }

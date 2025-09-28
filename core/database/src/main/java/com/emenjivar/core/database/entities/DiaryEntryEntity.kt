@@ -1,10 +1,9 @@
 package com.emenjivar.core.database.entities
 
 import androidx.room.ColumnInfo
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.Relation
+import java.time.LocalDateTime
 
 @Entity(tableName = "diary_entry")
 data class DiaryEntryEntity(
@@ -13,15 +12,9 @@ data class DiaryEntryEntity(
     @ColumnInfo(name = "title")
     val title: String,
     @ColumnInfo(name = "text")
-    val content: String
-)
-
-data class DiaryEntryWithInsertionsEntity(
-    @Embedded
-    val entry: DiaryEntryEntity,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "entry_id"
-    )
-    val emotions: List<DiaryEntryEmotionEntity>
+    val content: String,
+    @ColumnInfo(name = "created_at")
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    @ColumnInfo(name = "updated_at")
+    val updatedAt: LocalDateTime? = null
 )

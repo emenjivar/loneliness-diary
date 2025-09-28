@@ -9,6 +9,7 @@ import com.emenjivar.core.database.daos.DiaryEntryEmotionDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import java.time.LocalDateTime
 
 interface DiaryEntryRepository {
     fun getAll(): Flow<List<DiaryEntry>>
@@ -35,7 +36,15 @@ internal class DiaryEntryRepositoryImp(
 
     @Transaction
     override suspend fun insert(entry: DiaryEntry) {
-        val entity = entry.toEntity()
+        val now = LocalDateTime.now()
+        val originalEntry = diaryEntryDao.getById(id = entry.id)
+
+        val entity = entry.copy(
+            // Keeps original createdAt if the entry already exists
+            createdAt = originalEntry?.createdAt ?: entry.createdAt,
+            // Fill updatedAt only if the entry already exists
+            updatedAt = if (originalEntry != null) now else null
+        ).toEntity()
         val entryId = diaryEntryDao.insert(entity.entry)
 
         if (entity.entry.id != 0L) {

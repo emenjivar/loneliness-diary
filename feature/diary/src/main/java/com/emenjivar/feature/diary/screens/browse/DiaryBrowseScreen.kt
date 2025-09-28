@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.emenjivar.core.data.models.DiaryEntry
@@ -116,5 +117,17 @@ private fun DiaryEntry(
             modifier = Modifier.padding(16.dp),
             text = entry.content
         )
+        Text(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = "createdAt: ${entry.createdAt}",
+            fontSize = 10.sp
+        )
+        if (entry.updatedAt != null) {
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                text = "createdAt: ${entry.updatedAt}",
+                fontSize = 10.sp
+            )
+        }
     }
 }

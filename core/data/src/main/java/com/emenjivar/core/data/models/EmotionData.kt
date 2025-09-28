@@ -14,4 +14,12 @@ data class EmotionData(
     val name: String,
     val color: Long,
     val description: String
-)
+) {
+    companion object {
+        val empty = EmotionData(
+            name = "",
+            color = 0xff000000, // Default black
+            description = ""
+        )
+    }
+}

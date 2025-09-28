@@ -1,12 +1,13 @@
 package com.emenjivar.feature.diary.screens.entry
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emenjivar.core.data.models.DiaryEntry
 import com.emenjivar.core.data.models.DiaryEntryEmotion
+import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.core.data.repositories.DiaryEntryRepository
 import com.emenjivar.core.data.repositories.EmotionsRepository
+import com.emenjivar.feature.diary.ext.stateInDefault
 import com.emenjivar.feature.diary.navigation.ViewModelNavigation
 import com.emenjivar.feature.diary.navigation.ViewModelNavigationImp
 import dagger.assisted.Assisted
@@ -14,8 +15,10 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = DiaryEntryViewModel.Factory::class)
@@ -31,11 +34,39 @@ class DiaryEntryViewModel @AssistedInject constructor(
     }
 
     private val emotions = emotionsRepository.getAll()
-        .stateIn(
+        .stateInDefault(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList()
         )
+
+    private val emotionsMap = emotions.map { emotions ->
+        emotions.associateBy { it.name }
+    }
+
+    private val entry = diaryEntryRepository.findById(id)
+
+    private val initialText = entry
+        .filterNotNull()
+        .mapNotNull { it.content }
+        .stateInDefault(
+            scope = viewModelScope,
+            initialValue = ""
+        )
+
+    private val initialInsertions = combine(
+        entry.filterNotNull(),
+        emotionsMap
+    ) { entry, emotionsMap ->
+        entry.emotions.map { emotion ->
+            InsertedItem.Emotion(
+                data = emotionsMap[emotion.emotion] ?: EmotionData.empty,
+                startIndex = emotion.insertionIndex
+            )
+        }
+    }.stateInDefault(
+        scope = viewModelScope,
+        initialValue = emptyList()
+    )
 
     private fun saveEntry(text: String, insertedItems: List<InsertedItem>) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -47,25 +78,21 @@ class DiaryEntryViewModel @AssistedInject constructor(
                 )
             }
 
-
             diaryEntryRepository.insert(
                 DiaryEntry(
                     title = "Mock title",
                     content = text,
-                    entries = entries
+                    emotions = entries
                 )
             )
             popBackStack()
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.wtf("DiaryEntryViewModel", "hola")
-    }
-
     val uiState = DiaryEntryUiState(
         emotions = emotions,
+        initialText = initialText,
+        initialInsertions = initialInsertions,
         saveEntry = ::saveEntry,
         popBackStack = ::popBackStack
     )

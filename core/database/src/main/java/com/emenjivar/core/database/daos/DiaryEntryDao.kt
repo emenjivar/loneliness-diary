@@ -21,8 +21,8 @@ interface DiaryEntryDao {
     suspend fun insertEmotions(emotions: List<DiaryEntryEmotionEntity>)
 
     @Transaction
-    @Query("SELECT * FROM diary_entry")
-    fun getEntriesWithInsertions(): Flow<List<DiaryEntryWithInsertionsEntity>>
+    @Query("SELECT * FROM diary_entry WHERE id=:id")
+    fun getEntryWithInsertions(id: Long): Flow<DiaryEntryWithInsertionsEntity?>
 
     @Transaction
     suspend fun insertDiaryEntryWithEmotions(diaryEntryWithInsertionsEntity: DiaryEntryWithInsertionsEntity) {

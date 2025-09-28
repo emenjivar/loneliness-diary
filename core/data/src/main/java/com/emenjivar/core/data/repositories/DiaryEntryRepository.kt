@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.map
 interface DiaryEntryRepository {
     fun getAll(): Flow<List<DiaryEntry>>
 
+    fun findById(id: Long): Flow<DiaryEntry?>
+
     suspend fun insert(entry: DiaryEntry)
 }
 
@@ -23,6 +25,11 @@ internal class DiaryEntryRepositoryImp(
         .map { entities ->
             entities.map { it.toModel() }
         }
+
+    override fun findById(id: Long): Flow<DiaryEntry?> {
+        return diaryEntryDao.getEntryWithInsertions(id)
+            .map { data -> data?.toModel() }
+    }
 
     override suspend fun insert(entry: DiaryEntry) {
         diaryEntryDao.insertDiaryEntryWithEmotions(entry.toEntity())

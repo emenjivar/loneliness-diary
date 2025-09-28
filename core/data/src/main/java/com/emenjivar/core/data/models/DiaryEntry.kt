@@ -7,21 +7,21 @@ data class DiaryEntry(
     val id: Long = 0,
     val title: String,
     val content: String,
-    val entries: List<DiaryEntryEmotion>
+    val emotions: List<DiaryEntryEmotion>
 )
 
 fun DiaryEntryWithInsertionsEntity.toModel() = DiaryEntry(
     id = entry.id,
     title = entry.title,
     content = entry.content,
-    entries = emotions.map { it.toModel() }
+    emotions = emotions.map { it.toModel() }
 )
 
 fun DiaryEntryEntity.toModel() = DiaryEntry(
     id = id,
     title = title,
     content = content,
-    entries = emptyList()
+    emotions = emptyList()
 )
 
 fun DiaryEntry.toEntity() = DiaryEntryWithInsertionsEntity(
@@ -30,5 +30,5 @@ fun DiaryEntry.toEntity() = DiaryEntryWithInsertionsEntity(
         title = title,
         content = content
     ),
-    emotions = entries.map { it.toEntity() }
+    emotions = emotions.map { it.toEntity() }
 )

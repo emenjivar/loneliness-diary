@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
 import kotlinx.coroutines.delay
@@ -74,10 +75,23 @@ internal fun DiaryEntryScreen(
     uiState: DiaryEntryUiState
 ) {
     val emotions by uiState.emotions.collectAsStateWithLifecycle()
+    val initialText by uiState.initialText.collectAsStateWithLifecycle()
+    val initialInsertions by uiState.initialInsertions.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
-    val textFieldValue = remember { mutableStateOf(TextFieldValue()) }
-    val insertions = remember { mutableStateListOf<InsertedItem>() }
-    val isSaveEnabled by remember {
+    val textFieldValue = remember(initialText) {
+        mutableStateOf(
+            TextFieldValue(
+                text = initialText,
+                selection = TextRange(initialText.length.coerceAtLeast(0))
+            )
+        )
+    }
+    val insertions = remember(initialInsertions) {
+        mutableStateListOf<InsertedItem>().apply {
+            addAll(initialInsertions)
+        }
+    }
+    val isSaveEnabled by remember(initialText) {
         derivedStateOf { textFieldValue.value.text.isNotBlank() }
     }
     val sheetState = rememberModalBottomSheetState()
@@ -159,7 +173,8 @@ internal fun DiaryEntryScreen(
                                     insertions[index] = data.copy(
                                         // Shift the insertions by the number of characters of the deleted insertion
                                         // Or just shift by 1 (assuming there's no multi selection)
-                                        startIndex = data.startIndex - (cursorInsertedItem?.length ?: 1)
+                                        startIndex = data.startIndex - (cursorInsertedItem?.length
+                                            ?: 1)
                                     )
                                 }
                             }
@@ -322,6 +337,33 @@ private fun DiaryEntryScreenPreview() {
     DiaryEntryScreen(
         uiState = DiaryEntryUiState(
             emotions = MutableStateFlow(emptyList()),
+            initialText = MutableStateFlow(""),
+            initialInsertions = MutableStateFlow(emptyList()),
+            saveEntry = { _, _ -> },
+            popBackStack = {}
+        )
+    )
+}
+
+@Preview
+@Composable
+private fun DiaryEntryScreenWithDataPreview() {
+    DiaryEntryScreen(
+        uiState = DiaryEntryUiState(
+            emotions = MutableStateFlow(emptyList()),
+            initialText = MutableStateFlow("Today i feel sad"),
+            initialInsertions = MutableStateFlow(
+                listOf(
+                    InsertedItem.Emotion(
+                        data = EmotionData(
+                            name = "sad",
+                            color = 0xff0d47a1,
+                            description = ""
+                        ),
+                        startIndex = 13
+                    )
+                )
+            ),
             saveEntry = { _, _ -> },
             popBackStack = {}
         )

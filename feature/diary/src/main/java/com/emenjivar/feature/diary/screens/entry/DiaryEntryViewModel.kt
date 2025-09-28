@@ -80,6 +80,7 @@ class DiaryEntryViewModel @AssistedInject constructor(
 
             diaryEntryRepository.insert(
                 DiaryEntry(
+                    id = id,
                     title = "Mock title",
                     content = text,
                     emotions = entries

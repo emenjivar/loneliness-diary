@@ -1,5 +1,6 @@
 package com.emenjivar.feature.diary.screens.entry
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emenjivar.core.data.models.DiaryEntry
@@ -7,6 +8,7 @@ import com.emenjivar.core.data.models.DiaryEntryEmotion
 import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.core.data.repositories.DiaryEntryRepository
 import com.emenjivar.core.data.repositories.EmotionsRepository
+import com.emenjivar.core.data.repositories.SongsRepository
 import com.emenjivar.feature.diary.ext.stateInDefault
 import com.emenjivar.feature.diary.navigation.ViewModelNavigation
 import com.emenjivar.feature.diary.navigation.ViewModelNavigationImp
@@ -17,19 +19,29 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = DiaryEntryViewModel.Factory::class)
 class DiaryEntryViewModel @AssistedInject constructor(
     private val diaryEntryRepository: DiaryEntryRepository,
+    private val songsRepository: SongsRepository,
     @Assisted private val route: DiaryEntryRoute,
     emotionsRepository: EmotionsRepository
 ) : ViewModel(), ViewModelNavigation by ViewModelNavigationImp() {
     @AssistedFactory
     interface Factory {
         fun create(route: DiaryEntryRoute): DiaryEntryViewModel
+    }
+
+    init {
+        songsRepository.search(query = "Stay with me - miki matsubara", limit = 5)
+            .onEach { result ->
+                Log.wtf("DiaryEntryViewModel", "data: $result")
+            }.launchIn(viewModelScope)
     }
 
     private val emotions = emotionsRepository.getAll()

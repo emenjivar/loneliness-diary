@@ -7,8 +7,11 @@ import com.emenjivar.core.data.repositories.EmotionsRepository
 import com.emenjivar.core.data.repositories.EmotionsRepositoryImp
 import com.emenjivar.core.data.repositories.SettingsRepository
 import com.emenjivar.core.data.repositories.SettingsRepositoryImp
+import com.emenjivar.core.data.repositories.SongsRepository
+import com.emenjivar.core.data.repositories.SongsRepositoryImp
 import com.emenjivar.core.database.daos.DiaryEntryDao
 import com.emenjivar.core.database.daos.DiaryEntryEmotionDao
+import com.emenjivar.network.services.SongsService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,4 +39,11 @@ object RepositoryModule {
 
     @Provides
     fun providesEmotionsRepository(): EmotionsRepository = EmotionsRepositoryImp()
+
+    @Provides
+    fun providesSongsRepository(
+        songsService: SongsService
+    ): SongsRepository = SongsRepositoryImp(
+        songsService = songsService
+    )
 }

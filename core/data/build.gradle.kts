@@ -39,11 +39,16 @@ android {
 dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:datastore"))
+    implementation(project(":core:network"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.dagger.hilt)
     implementation(libs.androidx.room.runtime)
+    // TODO: Should these instances come from core:network?
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+
     ksp(libs.dagger.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

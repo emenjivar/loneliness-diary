@@ -314,10 +314,7 @@ internal fun DiaryEntryScreen(
 
     MusicBottomSheet(
         sheetState = musicSheetState,
-        songs = when (val songs = searchedSongs) {
-            is ResultWrapper.Success -> songs.data
-            else -> emptyList()
-        },
+        songs = searchedSongs,
         recentSongs = emptyList(),
         search = search,
         onSearchSong = uiState.onSearchSong

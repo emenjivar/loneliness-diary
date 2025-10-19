@@ -4,5 +4,6 @@ data class SongNetwork(
     val id: Long,
     val title: String,
     val preview: String,
-    val album: AlbumNetwork
+    val album: AlbumNetwork,
+    val artist: ArtistNetwork
 )

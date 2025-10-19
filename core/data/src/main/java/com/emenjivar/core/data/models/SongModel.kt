@@ -5,6 +5,7 @@ import com.emenjivar.network.models.SongNetwork
 data class SongModel(
     val id: Long,
     val title: String,
+    val artist: String,
     val previewUrl: String,
     val albumName: String,
     val albumCover: String,
@@ -14,6 +15,7 @@ data class SongModel(
 fun SongNetwork.toModel() = SongModel(
     id = id,
     title = title,
+    artist = artist.name,
     previewUrl = preview,
     albumName = album.title,
     albumCover = album.cover,

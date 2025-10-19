@@ -235,7 +235,7 @@ private fun SongItem(
                 style = MaterialTheme.typography.labelMedium
             )
             Text(
-                text = song.albumName,
+                text = song.artist,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Normal
             )

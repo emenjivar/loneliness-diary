@@ -317,7 +317,8 @@ internal fun DiaryEntryScreen(
         songs = searchedSongs,
         recentSongs = emptyList(),
         search = search,
-        onSearchSong = uiState.onSearchSong
+        onSearchSong = uiState.onSearchSong,
+        onTriggerImmediateSearch = uiState.onTriggerImmediateSearch
     )
 
     LaunchedEffect(Unit) {
@@ -363,6 +364,7 @@ private fun DiaryEntryScreenPreview() {
             searchedSongs = MutableStateFlow(ResultWrapper.Loading),
             saveEntry = { _, _ -> },
             onSearchSong = {},
+            onTriggerImmediateSearch = {},
             popBackStack = {}
         )
     )
@@ -391,6 +393,7 @@ private fun DiaryEntryScreenWithDataPreview() {
             searchedSongs = MutableStateFlow(ResultWrapper.Loading),
             saveEntry = { _, _ -> },
             onSearchSong = {},
+            onTriggerImmediateSearch = {},
             popBackStack = {}
         )
     )

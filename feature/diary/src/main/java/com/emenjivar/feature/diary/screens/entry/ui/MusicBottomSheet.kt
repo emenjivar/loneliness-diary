@@ -5,18 +5,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +29,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
@@ -65,7 +69,8 @@ fun MusicBottomSheet(
     recentSongs: List<SongModel>,
     search: String,
     modifier: Modifier = Modifier,
-    onSearchSong: (String) -> Unit
+    onSearchSong: (String) -> Unit,
+    onTriggerImmediateSearch: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     if (sheetState.isVisible) {
@@ -81,7 +86,8 @@ fun MusicBottomSheet(
                 recentSongs = recentSongs,
                 search = search,
                 modifier = modifier.fillMaxSize(),
-                onSearchSong = onSearchSong
+                onSearchSong = onSearchSong,
+                onTriggerImmediateSearch = onTriggerImmediateSearch
             )
         }
     }
@@ -95,7 +101,8 @@ private fun MusicBottomSheetLayout(
     recentSongs: List<SongModel>,
     search: String,
     modifier: Modifier = Modifier,
-    onSearchSong: (String) -> Unit
+    onSearchSong: (String) -> Unit,
+    onTriggerImmediateSearch: () -> Unit
 ) {
     var isPlaying by remember { mutableStateOf(false) }
     var currentMediaItemIndex by remember { mutableIntStateOf(-1) }
@@ -145,29 +152,45 @@ private fun MusicBottomSheetLayout(
             containerColor = Color.White
         )
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextField(
-                modifier = Modifier.weight(1f),
-                value = search,
-                placeholder = {
-                    Text(text = "Search a song")
-                },
-                onValueChange = onSearchSong
-            )
-
-            IconButton(
-                onClick = {
-                    onSearchSong("")
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = search,
+            maxLines = 1,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            placeholder = {
+                Text(text = "Search a song")
+            },
+//            leadingIcon = {
+//                IconButton(onClick = onTriggerImmediateSearch) {
+//                    Icon(
+//                        imageVector = Icons.Default.Search,
+//                        contentDescription = "Search a song by title"
+//                    )
+//                }
+//            },
+            trailingIcon = {
+                IconButton(onClick = { onSearchSong("") }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close bottomSheet"
+                    )
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Close bottomSheet"
-                )
-            }
-        }
+            },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    onTriggerImmediateSearch()
+                }
+            ),
+            onValueChange = onSearchSong
+        )
 
         LazyColumn(
             modifier = Modifier
@@ -220,7 +243,8 @@ private fun MusicBottomSheetLayout(
                         )
                     }
                     itemsIndexed(songs.data) { index, song ->
-                        val isPlaying = (index + recentSongs.size) == currentMediaItemIndex && isPlaying
+                        val isPlaying =
+                            (index + recentSongs.size) == currentMediaItemIndex && isPlaying
                         SongItem(
                             song = song,
                             isPlaying = isPlaying,
@@ -233,7 +257,7 @@ private fun MusicBottomSheetLayout(
                                 }
                             },
                             onClick = {
-                               // TODO: add here logic for inserting song in text entry
+                                // TODO: add here logic for inserting song in text entry
                             }
                         )
                     }
@@ -298,6 +322,7 @@ private fun MusicBottomSheetLayoutPreview() {
         songs = ResultWrapper.Success(listOf(Mocks.songModel1, Mocks.songModel2)),
         recentSongs = listOf(Mocks.songModel1, Mocks.songModel2),
         search = "",
-        onSearchSong = {}
+        onSearchSong = {},
+        onTriggerImmediateSearch = {}
     )
 }

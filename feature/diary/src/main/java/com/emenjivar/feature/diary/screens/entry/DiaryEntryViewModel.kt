@@ -20,14 +20,17 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -81,12 +84,19 @@ class DiaryEntryViewModel @AssistedInject constructor(
     )
 
     private val search = MutableStateFlow("")
-    private val searchedSongs = search.filter { it.trim().isNotBlank() }
+    private val debounceSearch = search
+        .filter { it.trim().isNotBlank() }
         .debounce(1000)
+
+    private val searchTrigger = MutableSharedFlow<Unit>(replay = 0)
+    private val immediateSearch = searchTrigger
+        .map { search.value }
+        .filter { it.trim().isNotBlank() }
+
+    private val searchedSongs = merge(debounceSearch, immediateSearch)
+        .distinctUntilChanged()
         .flatMapLatest { search ->
-            songsRepository.search(query = search, limit = 5).onEach {
-                Log.wtf("DiaryEntryViewModel", "data: $it")
-            }
+            songsRepository.search(query = search, limit = 10)
         }.stateInDefault(
             scope = viewModelScope,
             initialValue = ResultWrapper.Success(emptyList())
@@ -99,7 +109,8 @@ class DiaryEntryViewModel @AssistedInject constructor(
         search = search,
         searchedSongs = searchedSongs,
         saveEntry = ::saveEntry,
-        onSearchSong = ::onSearch,
+        onSearchSong = ::onSearchSong,
+        onTriggerImmediateSearch = ::onTriggerImmediateSearch,
         popBackStack = ::popBackStack
     )
 
@@ -128,7 +139,13 @@ class DiaryEntryViewModel @AssistedInject constructor(
         }
     }
 
-    private fun onSearch(value: String) {
+    private fun onSearchSong(value: String) {
         search.update { value }
+    }
+
+    private fun onTriggerImmediateSearch() {
+        viewModelScope.launch {
+            searchTrigger.emit(Unit)
+        }
     }
 }

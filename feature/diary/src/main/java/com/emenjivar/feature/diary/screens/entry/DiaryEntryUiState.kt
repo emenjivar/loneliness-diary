@@ -14,5 +14,6 @@ data class DiaryEntryUiState(
     val searchedSongs: StateFlow<ResultWrapper<List<SongModel>>>,
     val saveEntry: (text: String, insertions: List<InsertedItem>) -> Unit,
     val onSearchSong: (String) -> Unit,
+    val onTriggerImmediateSearch: () -> Unit,
     val popBackStack: () -> Unit
 )

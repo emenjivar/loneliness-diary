@@ -26,6 +26,7 @@ material3AdaptiveNav3 = "1.0.0-SNAPSHOT"
 uiTooling = "1.9.1"
 retrofit = "3.0.0"
 coil = "3.0.0"
+exoplayer = "1.8.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -60,6 +61,9 @@ androidx-datastore = { group = "androidx.datastore", name = "datastore-preferenc
 dagger-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-compose = { group = "androidx.hilt", name="hilt-navigation-compose", version = "1.2.0" }
+
+# Exoplayer
+androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "exoplayer" }
 
 # Navigation
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -24,7 +25,10 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +38,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -72,6 +80,7 @@ fun MusicBottomSheet(
     }
 }
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 @Stable
 private fun MusicBottomSheetLayout(
@@ -81,6 +90,33 @@ private fun MusicBottomSheetLayout(
     modifier: Modifier = Modifier,
     onSearchSong: (String) -> Unit
 ) {
+    // TODO: move to a separate hilt module
+    val context = LocalContext.current
+    val exoplayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            pauseAtEndOfMediaItems = true
+        }
+    }
+
+    LaunchedEffect(songs) {
+        val listSongs = songs as? ResultWrapper.Success ?: return@LaunchedEffect
+
+        exoplayer.apply {
+            pause()
+            val mediaItems = listSongs.data.map { song ->
+                MediaItem.fromUri(song.previewUrl)
+            }
+            clearMediaItems()
+            setMediaItems(mediaItems)
+            repeatMode = Player.REPEAT_MODE_OFF
+            prepare()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { exoplayer.release() }
+    }
+
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
@@ -149,10 +185,19 @@ private fun MusicBottomSheetLayout(
                             text = "Results"
                         )
                     }
-                    items(songs.data) { song ->
+                    itemsIndexed(songs.data) { index, song ->
                         SongItem(
                             song = song,
-                            onClick = {}
+                            onClick = {
+                                // Pause if the playing item is clicked a second time
+//                                if (index == exoplayer.currentMediaItemIndex) {
+//                                    exoplayer.pause()
+//                                } else {
+                                    // Play if user taps in another item
+                                    exoplayer.seekTo(index, 0)
+                                    exoplayer.play()
+//                                }
+                            }
                         )
                     }
                 }

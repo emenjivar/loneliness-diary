@@ -59,6 +59,9 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.network)
 
+    // Exoplayer
+    implementation(libs.androidx.media3.exoplayer)
+
     // DI
     implementation(libs.dagger.hilt)
     implementation(libs.hilt.compose)

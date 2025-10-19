@@ -4,7 +4,7 @@ object Mocks {
     val songModel1 = SongModel(
         id = 1,
         title = "Mayonaka no Door / Stay with mee",
-        preview = "fake_url",
+        previewUrl = "fake_url",
         albumName = "Miki Matsubara Best Collection",
         albumCover = "fake_url",
         albumCoverSmall = "fake_url"
@@ -13,7 +13,7 @@ object Mocks {
     val songModel2 = SongModel(
         id = 1,
         title = "Soleil Soleil",
-        preview = "fake_url",
+        previewUrl = "fake_url",
         albumName = "les failles cachées",
         albumCover = "fake_url",
         albumCoverSmall = "fake_url"

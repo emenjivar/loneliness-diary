@@ -3,7 +3,7 @@ package com.emenjivar.core.data.models
 import com.emenjivar.network.models.SongNetwork
 
 data class SongModel(
-    val id: Int,
+    val id: Long,
     val title: String,
     val preview: String,
     val albumName: String,

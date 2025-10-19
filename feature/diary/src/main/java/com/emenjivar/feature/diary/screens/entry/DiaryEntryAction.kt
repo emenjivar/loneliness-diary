@@ -7,5 +7,9 @@ enum class DiaryEntryAction(
     EMOTION(
         title = "Emotions",
         contentDescription = "Add emotion to diary entry"
+    ),
+    MUSIC(
+        title = "Music",
+        contentDescription = "Add a song to your diary entry"
     )
 }

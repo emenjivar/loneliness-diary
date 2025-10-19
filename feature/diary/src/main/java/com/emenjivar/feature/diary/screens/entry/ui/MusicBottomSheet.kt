@@ -1,5 +1,6 @@
 package com.emenjivar.feature.diary.screens.entry.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,8 +31,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -90,20 +97,35 @@ private fun MusicBottomSheetLayout(
     modifier: Modifier = Modifier,
     onSearchSong: (String) -> Unit
 ) {
+    var isPlaying by remember { mutableStateOf(false) }
+    var currentMediaItemIndex by remember { mutableIntStateOf(-1) }
+
     // TODO: move to a separate hilt module
     val context = LocalContext.current
     val exoplayer = remember {
         ExoPlayer.Builder(context).build().apply {
             pauseAtEndOfMediaItems = true
+
+            addListener(
+                object : Player.Listener {
+                    override fun onIsPlayingChanged(playing: Boolean) {
+                        isPlaying = playing
+                    }
+
+                    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                        currentMediaItemIndex = this@apply.currentMediaItemIndex
+                    }
+                }
+            )
         }
     }
 
-    LaunchedEffect(songs) {
-        val listSongs = songs as? ResultWrapper.Success ?: return@LaunchedEffect
-
+    LaunchedEffect(recentSongs, songs) {
+        val searchResult = (songs as? ResultWrapper.Success)?.data.orEmpty()
+        val allSongs = recentSongs + searchResult
         exoplayer.apply {
             pause()
-            val mediaItems = listSongs.data.map { song ->
+            val mediaItems = allSongs.map { song ->
                 MediaItem.fromUri(song.previewUrl)
             }
             clearMediaItems()
@@ -160,10 +182,22 @@ private fun MusicBottomSheetLayout(
                     )
                 }
 
-                items(recentSongs) { song ->
+                itemsIndexed(recentSongs) { index, song ->
+                    val isPlaying = index == currentMediaItemIndex && isPlaying
                     SongItem(
                         song = song,
-                        onClick = {}
+                        isPlaying = isPlaying,
+                        onPlay = {
+                            if (isPlaying) {
+                                exoplayer.pause()
+                            } else {
+                                exoplayer.seekTo(index, 0)
+                                exoplayer.play()
+                            }
+                        },
+                        onClick = {
+                            // TODO: add here logic for inserting song in text entry
+                        }
                     )
                 }
             }
@@ -182,21 +216,24 @@ private fun MusicBottomSheetLayout(
                     item {
                         Text(
                             modifier = Modifier.padding(horizontal = 20.dp),
-                            text = "Results"
+                            text = "Results:"
                         )
                     }
                     itemsIndexed(songs.data) { index, song ->
+                        val isPlaying = (index + recentSongs.size) == currentMediaItemIndex && isPlaying
                         SongItem(
                             song = song,
-                            onClick = {
-                                // Pause if the playing item is clicked a second time
-//                                if (index == exoplayer.currentMediaItemIndex) {
-//                                    exoplayer.pause()
-//                                } else {
-                                    // Play if user taps in another item
+                            isPlaying = isPlaying,
+                            onPlay = {
+                                if (isPlaying) {
+                                    exoplayer.pause()
+                                } else {
                                     exoplayer.seekTo(index, 0)
                                     exoplayer.play()
-//                                }
+                                }
+                            },
+                            onClick = {
+                               // TODO: add here logic for inserting song in text entry
                             }
                         )
                     }
@@ -210,11 +247,15 @@ private fun MusicBottomSheetLayout(
 @Stable
 private fun SongItem(
     song: SongModel,
+    isPlaying: Boolean,
     modifier: Modifier = Modifier,
+    onPlay: () -> Unit,
     onClick: () -> Unit
 ) {
     Row(
-        modifier = modifier.padding(start = 20.dp),
+        modifier = modifier
+            .padding(start = 20.dp)
+            .clickable { onClick() },
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -241,9 +282,9 @@ private fun SongItem(
             )
         }
 
-        IconButton(onClick = onClick) {
+        IconButton(onClick = onPlay) {
             Icon(
-                Icons.Default.Add,
+                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = "Insert song to the entry"
             )
         }

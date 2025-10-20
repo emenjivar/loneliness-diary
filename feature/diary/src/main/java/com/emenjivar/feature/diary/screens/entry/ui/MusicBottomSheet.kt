@@ -1,24 +1,29 @@
 package com.emenjivar.feature.diary.screens.entry.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,8 +33,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -77,6 +82,8 @@ fun MusicBottomSheet(
         ModalBottomSheet(
             modifier = Modifier.statusBarsPadding(),
             sheetState = sheetState,
+            dragHandle = null,
+            sheetGesturesEnabled = false,
             onDismissRequest = {
                 coroutineScope.launch { sheetState.hide() }
             }
@@ -87,12 +94,16 @@ fun MusicBottomSheet(
                 search = search,
                 modifier = modifier.fillMaxSize(),
                 onSearchSong = onSearchSong,
-                onTriggerImmediateSearch = onTriggerImmediateSearch
+                onTriggerImmediateSearch = onTriggerImmediateSearch,
+                onDismiss = {
+                    coroutineScope.launch { sheetState.hide() }
+                }
             )
         }
     }
 }
 
+@ExperimentalMaterial3Api
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 @Stable
@@ -102,7 +113,8 @@ private fun MusicBottomSheetLayout(
     search: String,
     modifier: Modifier = Modifier,
     onSearchSong: (String) -> Unit,
-    onTriggerImmediateSearch: () -> Unit
+    onTriggerImmediateSearch: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     var isPlaying by remember { mutableStateOf(false) }
     var currentMediaItemIndex by remember { mutableIntStateOf(-1) }
@@ -152,35 +164,24 @@ private fun MusicBottomSheetLayout(
             containerColor = Color.White
         )
     ) {
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = search,
-            maxLines = 1,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            placeholder = {
-                Text(text = "Search a song")
-            },
-//            leadingIcon = {
-//                IconButton(onClick = onTriggerImmediateSearch) {
-//                    Icon(
-//                        imageVector = Icons.Default.Search,
-//                        contentDescription = "Search a song by title"
-//                    )
-//                }
-//            },
-            trailingIcon = {
-                IconButton(onClick = { onSearchSong("") }) {
+        TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+            navigationIcon = {
+                IconButton(onClick = onDismiss) {
                     Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close bottomSheet"
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Close music search bottom sheet"
                     )
                 }
             },
+            title = {}
+        )
+
+        BasicTextField(
+            modifier = Modifier.padding(horizontal = 20.dp),
+            value = search,
+            textStyle = MaterialTheme.typography.labelMedium,
+            maxLines = 1,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Search
             ),
@@ -189,19 +190,53 @@ private fun MusicBottomSheetLayout(
                     onTriggerImmediateSearch()
                 }
             ),
-            onValueChange = onSearchSong
+            onValueChange = onSearchSong,
+            decorationBox = { innerBox ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(
+                            width = 1.dp,
+                            color = Color.Black, shape = CircleShape
+                        ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(
+                        modifier = Modifier
+                        .padding(start = 20.dp)
+                    ) {
+                        innerBox()
+                        if (search.isBlank()) {
+                            Text(
+                                modifier = Modifier,
+                                text = "Search a song",
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        }
+                    }
+
+                    IconButton(onClick = { onSearchSong("") }) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close bottomSheet"
+                        )
+                    }
+                }
+            }
         )
 
         LazyColumn(
             modifier = Modifier
                 .padding(vertical = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             if (recentSongs.isNotEmpty()) {
                 item {
                     Text(
                         modifier = Modifier.padding(horizontal = 20.dp),
-                        text = "Recent songs"
+                        text = "Recent songs",
+                        style = MaterialTheme.typography.labelMedium
                     )
                 }
 
@@ -230,7 +265,8 @@ private fun MusicBottomSheetLayout(
                     item {
                         Text(
                             modifier = Modifier.padding(horizontal = 20.dp),
-                            text = "Searching..."
+                            text = "Searching...",
+                            style = MaterialTheme.typography.labelMedium
                         )
                     }
                 }
@@ -239,7 +275,8 @@ private fun MusicBottomSheetLayout(
                     item {
                         Text(
                             modifier = Modifier.padding(horizontal = 20.dp),
-                            text = "Results:"
+                            text = "Results:",
+                            style = MaterialTheme.typography.labelLarge
                         )
                     }
                     itemsIndexed(songs.data) { index, song ->
@@ -315,6 +352,7 @@ private fun SongItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun MusicBottomSheetLayoutPreview() {
@@ -323,6 +361,7 @@ private fun MusicBottomSheetLayoutPreview() {
         recentSongs = listOf(Mocks.songModel1, Mocks.songModel2),
         search = "",
         onSearchSong = {},
-        onTriggerImmediateSearch = {}
+        onTriggerImmediateSearch = {},
+        onDismiss = {}
     )
 }

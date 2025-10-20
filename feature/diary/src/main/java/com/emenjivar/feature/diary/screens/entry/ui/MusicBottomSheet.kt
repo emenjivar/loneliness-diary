@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -64,6 +63,8 @@ import coil3.request.crossfade
 import com.emenjivar.core.data.models.Mocks
 import com.emenjivar.core.data.models.SongModel
 import com.emenjivar.core.data.utils.ResultWrapper
+import com.emenjivar.feature.diary.ui.LocalCoilImageLoaderProvider
+import com.emenjivar.feature.diary.ui.LocalExoplayerProvider
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,13 +119,11 @@ private fun MusicBottomSheetLayout(
 ) {
     var isPlaying by remember { mutableStateOf(false) }
     var currentMediaItemIndex by remember { mutableIntStateOf(-1) }
+    val exoplayer = LocalExoplayerProvider.current.exoPlayer
 
-    // TODO: move to a separate hilt module
-    val context = LocalContext.current
-    val exoplayer = remember {
-        ExoPlayer.Builder(context).build().apply {
+    LaunchedEffect(Unit) {
+        exoplayer.apply {
             pauseAtEndOfMediaItems = true
-
             addListener(
                 object : Player.Listener {
                     override fun onIsPlayingChanged(playing: Boolean) {
@@ -155,7 +154,8 @@ private fun MusicBottomSheetLayout(
     }
 
     DisposableEffect(Unit) {
-        onDispose { exoplayer.release() }
+        // Do not release the global exoplayer
+        onDispose { exoplayer.clearMediaItems() }
     }
 
     Card(
@@ -204,7 +204,7 @@ private fun MusicBottomSheetLayout(
                 ) {
                     Box(
                         modifier = Modifier
-                        .padding(start = 20.dp)
+                            .padding(start = 20.dp)
                     ) {
                         innerBox()
                         if (search.isBlank()) {
@@ -301,6 +301,7 @@ private fun MusicBottomSheetLayout(
                 }
             }
         }
+
     }
 }
 
@@ -327,7 +328,12 @@ private fun SongItem(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(song.albumCoverSmall)
                 .crossfade(true)
+                // In theory, different song for the same album shares the cover image
+                // I think this is a good optimization for save some memory/disk space
+                .diskCacheKey(song.albumId.toString())
+                .memoryCacheKey(song.albumId.toString())
                 .build(),
+            imageLoader = LocalCoilImageLoaderProvider.current.loader,
             contentDescription = null
         )
 

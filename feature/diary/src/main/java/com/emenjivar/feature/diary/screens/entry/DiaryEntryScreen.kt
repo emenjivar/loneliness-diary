@@ -47,6 +47,7 @@ import com.emenjivar.core.data.utils.ResultWrapper
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
 import com.emenjivar.feature.diary.screens.entry.ui.MusicBottomSheet
+import com.emenjivar.feature.diary.util.DELAY_FOCUS
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -68,8 +69,6 @@ internal fun DiaryEntryScreen(
         onNavigateAction = onNavigateAction
     )
 }
-
-private const val DELAY_FOCUS = 500L
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

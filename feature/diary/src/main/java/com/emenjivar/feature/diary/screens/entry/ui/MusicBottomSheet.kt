@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -47,8 +48,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,7 +60,6 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.ExoPlayer
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -65,6 +68,8 @@ import com.emenjivar.core.data.models.SongModel
 import com.emenjivar.core.data.utils.ResultWrapper
 import com.emenjivar.feature.diary.ui.LocalCoilImageLoaderProvider
 import com.emenjivar.feature.diary.ui.LocalExoplayerProvider
+import com.emenjivar.feature.diary.util.DELAY_FOCUS
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,6 +125,9 @@ private fun MusicBottomSheetLayout(
     var isPlaying by remember { mutableStateOf(false) }
     var currentMediaItemIndex by remember { mutableIntStateOf(-1) }
     val exoplayer = LocalExoplayerProvider.current.exoPlayer
+    val listState = rememberLazyListState()
+    val focusRequester = remember { FocusRequester() }
+    val localKeyboard = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         exoplayer.apply {
@@ -153,6 +161,18 @@ private fun MusicBottomSheetLayout(
         }
     }
 
+    LaunchedEffect(Unit) {
+        delay(DELAY_FOCUS)
+        focusRequester.requestFocus()
+    }
+
+    LaunchedEffect(listState.isScrollInProgress) {
+        if (listState.isScrollInProgress) {
+            focusRequester.freeFocus()
+            localKeyboard?.hide()
+        }
+    }
+
     DisposableEffect(Unit) {
         // Do not release the global exoplayer
         onDispose { exoplayer.clearMediaItems() }
@@ -178,7 +198,9 @@ private fun MusicBottomSheetLayout(
         )
 
         BasicTextField(
-            modifier = Modifier.padding(horizontal = 20.dp),
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .padding(horizontal = 20.dp),
             value = search,
             textStyle = MaterialTheme.typography.labelMedium,
             maxLines = 1,
@@ -227,8 +249,8 @@ private fun MusicBottomSheetLayout(
         )
 
         LazyColumn(
-            modifier = Modifier
-                .padding(vertical = 20.dp),
+            modifier = Modifier.padding(vertical = 20.dp),
+            state = listState,
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             if (recentSongs.isNotEmpty()) {

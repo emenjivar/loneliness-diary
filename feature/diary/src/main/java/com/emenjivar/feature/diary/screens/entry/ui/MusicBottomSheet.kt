@@ -138,7 +138,10 @@ private fun MusicBottomSheetLayout(
                         isPlaying = playing
                     }
 
-                    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                    override fun onMediaItemTransition(
+                        mediaItem: MediaItem?,
+                        reason: Int
+                    ) {
                         currentMediaItemIndex = this@apply.currentMediaItemIndex
                     }
                 }
@@ -219,10 +222,11 @@ private fun MusicBottomSheetLayout(
                         .fillMaxWidth()
                         .border(
                             width = 1.dp,
-                            color = Color.Black, shape = CircleShape
+                            color = Color.Black,
+                            shape = CircleShape
                         ),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
@@ -323,7 +327,6 @@ private fun MusicBottomSheetLayout(
                 }
             }
         }
-
     }
 }
 

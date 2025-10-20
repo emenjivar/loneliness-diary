@@ -1,6 +1,5 @@
 package com.emenjivar.feature.diary.screens.entry
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emenjivar.core.data.models.DiaryEntry
@@ -31,7 +30,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -86,7 +84,7 @@ class DiaryEntryViewModel @AssistedInject constructor(
     private val search = MutableStateFlow("")
     private val debounceSearch = search
         .filter { it.trim().isNotBlank() }
-        .debounce(1000)
+        .debounce(SEARCH_DEBOUNCE_MILLIS)
 
     private val searchTrigger = MutableSharedFlow<Unit>(replay = 0)
     private val immediateSearch = searchTrigger
@@ -147,5 +145,9 @@ class DiaryEntryViewModel @AssistedInject constructor(
         viewModelScope.launch {
             searchTrigger.emit(Unit)
         }
+    }
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_MILLIS = 1000L
     }
 }

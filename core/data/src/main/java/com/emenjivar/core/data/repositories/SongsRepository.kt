@@ -8,7 +8,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 interface SongsRepository {
-    fun search(query: String, limit: Int): Flow<ResultWrapper<List<SongModel>>>
+    fun search(
+        query: String,
+        limit: Int
+    ): Flow<ResultWrapper<List<SongModel>>>
 }
 
 class SongsRepositoryImp(

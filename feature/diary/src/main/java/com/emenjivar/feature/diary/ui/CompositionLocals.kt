@@ -15,4 +15,5 @@ val LocalExoplayerProvider = compositionLocalOf<ExoplayerProvider> {
 // Wraps instances to inject them into MainActivity
 // without including their respective dependencies in :app
 data class ImageLoaderProvider(val loader: ImageLoader)
+
 data class ExoplayerProvider(val exoPlayer: ExoPlayer)

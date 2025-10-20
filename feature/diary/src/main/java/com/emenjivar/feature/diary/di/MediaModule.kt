@@ -13,7 +13,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object MediaModule {
-
     @Provides
     @Singleton
     fun providesExoplayer(

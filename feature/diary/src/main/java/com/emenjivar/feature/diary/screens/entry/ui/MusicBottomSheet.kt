@@ -72,8 +72,18 @@ import com.emenjivar.feature.diary.util.DELAY_FOCUS
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * @param sheetState The state of the bottom sheet.
+ * @param songs The list of songs fetched from API.
+ * @param recentSongs The list of previously selected songs.
+ * @param search The search query string.
+ * @param modifier Modifier to be applied to the bottom sheet component.
+ * @param onSearchSong Callback triggered when the search input changes.
+ * @param onTriggerImmediateSearch Callback trigger when the ime action `search` is called.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Stable
 fun MusicBottomSheet(
     sheetState: SheetState,
     songs: ResultWrapper<List<SongModel>>,
@@ -86,7 +96,7 @@ fun MusicBottomSheet(
     val coroutineScope = rememberCoroutineScope()
     if (sheetState.isVisible) {
         ModalBottomSheet(
-            modifier = Modifier.statusBarsPadding(),
+            modifier = modifier.statusBarsPadding(),
             sheetState = sheetState,
             dragHandle = null,
             sheetGesturesEnabled = false,
@@ -98,7 +108,7 @@ fun MusicBottomSheet(
                 songs = songs,
                 recentSongs = recentSongs,
                 search = search,
-                modifier = modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 onSearchSong = onSearchSong,
                 onTriggerImmediateSearch = onTriggerImmediateSearch,
                 onDismiss = {

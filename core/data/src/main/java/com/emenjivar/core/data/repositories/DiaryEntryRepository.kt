@@ -1,6 +1,5 @@
 package com.emenjivar.core.data.repositories
 
-import androidx.room.Transaction
 import com.emenjivar.core.data.models.DiaryEntry
 import com.emenjivar.core.data.models.toEntity
 import com.emenjivar.core.data.models.toModel
@@ -34,7 +33,6 @@ internal class DiaryEntryRepositoryImp(
             .map { data -> data?.toModel() }
     }
 
-    @Transaction
     override suspend fun insert(entry: DiaryEntry) {
         val now = LocalDateTime.now()
         val originalEntry = diaryEntryDao.getById(id = entry.id)

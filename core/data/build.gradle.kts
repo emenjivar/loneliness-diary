@@ -44,11 +44,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.dagger.hilt)
-    implementation(libs.androidx.room.runtime)
-    // TODO: Should these instances come from core:network?
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.gson)
-
     ksp(libs.dagger.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

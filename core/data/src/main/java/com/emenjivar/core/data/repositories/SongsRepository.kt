@@ -24,7 +24,7 @@ class SongsRepositoryImp(
         emit(ResultWrapper.Loading)
 
         val response = songsService
-            .search(q = query, limit = limit).body()
+            .search(q = query, limit = limit)
             ?.data
             ?.map { it.toModel() }.orEmpty()
 

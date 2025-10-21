@@ -1,4 +1,4 @@
-package com.emenjivar.core.data.di
+package com.emenjivar.core.database.di
 
 import android.content.Context
 import androidx.room.Room

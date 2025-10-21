@@ -1,4 +1,4 @@
-package com.emenjivar.core.data.di
+package com.emenjivar.network.di
 
 import com.emenjivar.network.services.SongsService
 import dagger.Module

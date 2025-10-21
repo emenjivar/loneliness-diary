@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object ImageLoaderModule {
+object ImageModule {
     private const val MEMORY_CACHE_MAX_SIZE_PERCENT = 0.25
     private const val DISK_CACHE_MAX_SIZE_PERCENT = 0.02
 

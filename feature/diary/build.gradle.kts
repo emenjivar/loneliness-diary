@@ -55,6 +55,12 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons)
+    implementation(libs.coil)
+    implementation(libs.coil.network)
+
+    // Exoplayer
+    implementation(libs.androidx.media3.exoplayer)
 
     // DI
     implementation(libs.dagger.hilt)

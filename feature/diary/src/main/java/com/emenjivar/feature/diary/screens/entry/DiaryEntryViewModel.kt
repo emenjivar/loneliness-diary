@@ -7,6 +7,8 @@ import com.emenjivar.core.data.models.DiaryEntryEmotion
 import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.core.data.repositories.DiaryEntryRepository
 import com.emenjivar.core.data.repositories.EmotionsRepository
+import com.emenjivar.core.data.repositories.SongsRepository
+import com.emenjivar.core.data.utils.ResultWrapper
 import com.emenjivar.feature.diary.ext.stateInDefault
 import com.emenjivar.feature.diary.navigation.ViewModelNavigation
 import com.emenjivar.feature.diary.navigation.ViewModelNavigationImp
@@ -15,15 +17,27 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = DiaryEntryViewModel.Factory::class)
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class DiaryEntryViewModel @AssistedInject constructor(
     private val diaryEntryRepository: DiaryEntryRepository,
+    private val songsRepository: SongsRepository,
     @Assisted private val route: DiaryEntryRoute,
     emotionsRepository: EmotionsRepository
 ) : ViewModel(), ViewModelNavigation by ViewModelNavigationImp() {
@@ -67,6 +81,37 @@ class DiaryEntryViewModel @AssistedInject constructor(
         initialValue = emptyList()
     )
 
+    private val search = MutableStateFlow("")
+    private val debounceSearch = search
+        .filter { it.trim().isNotBlank() }
+        .debounce(SEARCH_DEBOUNCE_MILLIS)
+
+    private val searchTrigger = MutableSharedFlow<Unit>(replay = 0)
+    private val immediateSearch = searchTrigger
+        .map { search.value }
+        .filter { it.trim().isNotBlank() }
+
+    private val searchedSongs = merge(debounceSearch, immediateSearch)
+        .distinctUntilChanged()
+        .flatMapLatest { search ->
+            songsRepository.search(query = search, limit = 10)
+        }.stateInDefault(
+            scope = viewModelScope,
+            initialValue = ResultWrapper.Success(emptyList())
+        )
+
+    val uiState = DiaryEntryUiState(
+        emotions = emotions,
+        initialText = initialText,
+        initialInsertions = initialInsertions,
+        search = search,
+        searchedSongs = searchedSongs,
+        saveEntry = ::saveEntry,
+        onSearchSong = ::onSearchSong,
+        onTriggerImmediateSearch = ::onTriggerImmediateSearch,
+        popBackStack = ::popBackStack
+    )
+
     private fun saveEntry(
         text: String,
         insertedItems: List<InsertedItem>
@@ -92,11 +137,17 @@ class DiaryEntryViewModel @AssistedInject constructor(
         }
     }
 
-    val uiState = DiaryEntryUiState(
-        emotions = emotions,
-        initialText = initialText,
-        initialInsertions = initialInsertions,
-        saveEntry = ::saveEntry,
-        popBackStack = ::popBackStack
-    )
+    private fun onSearchSong(value: String) {
+        search.update { value }
+    }
+
+    private fun onTriggerImmediateSearch() {
+        viewModelScope.launch {
+            searchTrigger.emit(Unit)
+        }
+    }
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_MILLIS = 1000L
+    }
 }

@@ -1,4 +1,4 @@
-package com.emenjivar.feature.diary.screens.entry
+package com.emenjivar.feature.diary.screens.entry.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

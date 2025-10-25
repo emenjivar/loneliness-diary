@@ -43,8 +43,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.emenjivar.core.data.models.EmotionData
+import com.emenjivar.core.data.utils.ResultWrapper
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
+import com.emenjivar.feature.diary.screens.entry.ui.EmotionsBottomSheet
+import com.emenjivar.feature.diary.screens.entry.ui.MusicBottomSheet
+import com.emenjivar.feature.diary.util.DELAY_FOCUS
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -67,8 +71,6 @@ internal fun DiaryEntryScreen(
     )
 }
 
-private const val DELAY_FOCUS = 500L
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DiaryEntryScreen(
@@ -77,6 +79,9 @@ internal fun DiaryEntryScreen(
     val emotions by uiState.emotions.collectAsStateWithLifecycle()
     val initialText by uiState.initialText.collectAsStateWithLifecycle()
     val initialInsertions by uiState.initialInsertions.collectAsStateWithLifecycle()
+    val search by uiState.search.collectAsStateWithLifecycle()
+    val searchedSongs by uiState.searchedSongs.collectAsStateWithLifecycle()
+
     val focusRequester = remember { FocusRequester() }
     val textFieldValue = remember(initialText) {
         mutableStateOf(
@@ -94,7 +99,10 @@ internal fun DiaryEntryScreen(
     val isSaveEnabled by remember(initialText) {
         derivedStateOf { textFieldValue.value.text.isNotBlank() }
     }
-    val sheetState = rememberModalBottomSheetState()
+    val emotionsSheetState = rememberModalBottomSheetState()
+    val musicSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
     val coroutineScope = rememberCoroutineScope()
     val localKeyboard = LocalSoftwareKeyboardController.current
 
@@ -245,7 +253,12 @@ internal fun DiaryEntryScreen(
                     DiaryEntryAction.EMOTION -> {
                         coroutineScope.launch {
                             localKeyboard?.hide()
-                            sheetState.show()
+                            emotionsSheetState.show()
+                        }
+                    }
+                    DiaryEntryAction.MUSIC -> {
+                        coroutineScope.launch {
+                            musicSheetState.expand()
                         }
                     }
                 }
@@ -254,11 +267,11 @@ internal fun DiaryEntryScreen(
     }
 
     EmotionsBottomSheet(
-        sheetState = sheetState,
+        sheetState = emotionsSheetState,
         emotions = emotions,
         onEmotionClick = { selectedEmotion ->
             coroutineScope.launch {
-                sheetState.hide()
+                emotionsSheetState.hide()
                 if (shouldBlockInsertion(
                         selection = textFieldValue.value.selection,
                         insertions = insertions
@@ -297,6 +310,15 @@ internal fun DiaryEntryScreen(
                 localKeyboard?.show()
             }
         }
+    )
+
+    MusicBottomSheet(
+        sheetState = musicSheetState,
+        songs = searchedSongs,
+        recentSongs = emptyList(),
+        search = search,
+        onSearchSong = uiState.onSearchSong,
+        onTriggerImmediateSearch = uiState.onTriggerImmediateSearch
     )
 
     LaunchedEffect(Unit) {
@@ -338,7 +360,11 @@ private fun DiaryEntryScreenPreview() {
             emotions = MutableStateFlow(emptyList()),
             initialText = MutableStateFlow(""),
             initialInsertions = MutableStateFlow(emptyList()),
+            search = MutableStateFlow(""),
+            searchedSongs = MutableStateFlow(ResultWrapper.Loading),
             saveEntry = { _, _ -> },
+            onSearchSong = {},
+            onTriggerImmediateSearch = {},
             popBackStack = {}
         )
     )
@@ -363,7 +389,11 @@ private fun DiaryEntryScreenWithDataPreview() {
                     )
                 )
             ),
+            search = MutableStateFlow(""),
+            searchedSongs = MutableStateFlow(ResultWrapper.Loading),
             saveEntry = { _, _ -> },
+            onSearchSong = {},
+            onTriggerImmediateSearch = {},
             popBackStack = {}
         )
     )

@@ -271,7 +271,7 @@ private fun MusicBottomSheetLayout(
         LazyColumn(
             modifier = Modifier.padding(vertical = 20.dp),
             state = listState,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            // verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             if (recentSongs.isNotEmpty()) {
                 item {
@@ -357,9 +357,10 @@ private fun SongItem(
 ) {
     Row(
         modifier = modifier
+            .clickable { onClick() }
             .padding(start = 20.dp)
-            .clickable { onClick() },
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+            .padding(vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(

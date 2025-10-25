@@ -177,11 +177,10 @@ internal fun DiaryEntryScreen(
                             // Apply a negative offset to the insertions ahead the cursor
                             insertions.forEachIndexed { index, insertion ->
                                 if (insertion.startIndex + insertion.length > cursorIndex) {
-                                    val data = insertion as InsertedItem.Emotion
-                                    insertions[index] = data.copy(
+                                    insertions[index] = insertion.updateStartIndex(
                                         // Shift the insertions by the number of characters of the deleted insertion
                                         // Or just shift by 1 (assuming there's no multi selection)
-                                        startIndex = data.startIndex - (cursorInsertedItem?.length ?: 1)
+                                        newStartIndex = insertion.startIndex - (cursorInsertedItem?.length ?: 1)
                                     )
                                 }
                             }
@@ -214,9 +213,8 @@ internal fun DiaryEntryScreen(
                             // Apply a positive offset of the insertion ahead the cursor
                             insertions.forEachIndexed { index, insertion ->
                                 if (insertion.startIndex + insertion.length >= cursorIndex) {
-                                    val data = insertion as InsertedItem.Emotion
-                                    insertions[index] = data.copy(
-                                        startIndex = data.startIndex + (updatedValue.selection.length + 1)
+                                    insertions[index] = insertion.updateStartIndex(
+                                        newStartIndex = insertion.startIndex + (updatedValue.selection.length + 1)
                                     )
                                 }
                             }
@@ -318,7 +316,50 @@ internal fun DiaryEntryScreen(
         recentSongs = emptyList(),
         search = search,
         onSearchSong = uiState.onSearchSong,
-        onTriggerImmediateSearch = uiState.onTriggerImmediateSearch
+        onTriggerImmediateSearch = uiState.onTriggerImmediateSearch,
+        onClickSong = { song ->
+            coroutineScope.launch {
+                musicSheetState.hide()
+
+                if (shouldBlockInsertion(
+                    selection = textFieldValue.value.selection,
+                    insertions = insertions
+                )) {
+                    // TODO: just append the song at the end of the text
+                    //  To prevent another API search
+                    return@launch
+                }
+
+                val originalTextField = textFieldValue.value
+                val song: InsertedItem = InsertedItem.Song(
+                    data = song,
+                    startIndex = originalTextField.selection.start
+                )
+
+                insertItem(
+                    insertions = insertions,
+                    newElement = song
+                )
+
+                val updatedText = insertText(
+                    original = originalTextField.text,
+                    newElement = song
+                )
+
+                textFieldValue.value = originalTextField.copy(
+                    annotatedString = applyStylesToAnnotatedString(
+                        rawText = updatedText,
+                        insertions = insertions
+                    ),
+                    // Put the cursor at the end of the inserted word
+                    selection = TextRange(
+                        originalTextField.selection.end + song.length
+                    )
+                )
+
+                localKeyboard?.show()
+            }
+        }
     )
 
     LaunchedEffect(Unit) {

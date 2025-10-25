@@ -46,6 +46,7 @@ import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.core.data.utils.ResultWrapper
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
+import com.emenjivar.feature.diary.screens.entry.ui.EmotionsBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.MusicBottomSheet
 import com.emenjivar.feature.diary.util.DELAY_FOCUS
 import kotlinx.coroutines.delay

@@ -2,6 +2,16 @@
 This document records technical decisions and engineering insights through the development process.
 It servers as a living history of trade-offs, experiments and rationale behind important decisions.
 
+## Oct 24, 2025 - Implementing a music searcher
+**Objective**:
+Implement an API for searching songs by title and author, and for playing a 30s preview.
+
+**Solution**:
+The original idea was to use `Spotify API`, but realized the field that provides the `30s preview`
+was deprecated, so I research a little bit and realized `Deezer API` was the most viable option.
+The API does not even need API key, I just have to be careful and prevent more that 5 API calls 
+per second, which sounds reasonable.
+
 ## Sep 21, 2025 - Inserting emotions into the entries
 **Objective**:
 Insert emotions into text and apply color coding based on emotion categories.

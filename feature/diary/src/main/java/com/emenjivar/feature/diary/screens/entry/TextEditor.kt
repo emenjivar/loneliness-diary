@@ -6,6 +6,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.core.data.models.SongModel
@@ -13,6 +14,8 @@ import com.emenjivar.core.data.models.SongModel
 sealed class InsertedItem(
     val text: String,
     val textDecoration: TextDecoration,
+    val fontStyle: FontStyle,
+    val fontWeight: FontWeight,
     open val color: Color,
     open val startIndex: Int
 ) {
@@ -24,6 +27,8 @@ sealed class InsertedItem(
     ) : InsertedItem(
             text = data.name,
             textDecoration = TextDecoration.None,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Normal,
             color = Color(data.color),
             startIndex = startIndex
         ) {
@@ -34,8 +39,10 @@ sealed class InsertedItem(
         val data: SongModel,
         override val startIndex: Int
     ): InsertedItem(
-        text = "\uD83C\uDFB5 ${data.title} by ${data.artist} \uD83C\uDFB5",
+        text = "${data.title} by ${data.artist} \uD83C\uDFB5",
         textDecoration = TextDecoration.Underline,
+        fontStyle = FontStyle.Italic,
+        fontWeight = FontWeight.Bold,
         color = Color.Black,
         startIndex = startIndex
     ) {
@@ -61,7 +68,9 @@ fun applyStylesToAnnotatedString(
             addStyle(
                 style = SpanStyle(
                     color = insertion.color,
-                    textDecoration = insertion.textDecoration
+                    textDecoration = insertion.textDecoration,
+                    fontStyle = insertion.fontStyle,
+                    fontWeight = insertion.fontWeight
                 ),
                 start = insertion.startIndex,
                 end = endIndex

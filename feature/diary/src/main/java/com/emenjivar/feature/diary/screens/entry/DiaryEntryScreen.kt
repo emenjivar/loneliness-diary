@@ -237,6 +237,24 @@ internal fun DiaryEntryScreen(
                             textFieldValue.value = updatedValue.copy(
                                 annotatedString = newAnnotatedString
                             )
+
+                            // Open the respective bottomSheet when the cursor is within the range of the insertion
+                            val selectedInsertion = insertions.firstOrNull { insertion ->
+                                val startBound = updatedValue.selection.start > insertion.startIndex
+                                val endBound = updatedValue.selection.start < insertion.startIndex + insertion.length - 1
+                                startBound && endBound
+                            }
+
+                            // Click/tap over the rich text insertion
+                            if (selectedInsertion != null){
+                                localKeyboard?.hide()
+                                focusRequester.freeFocus()
+
+                                when (selectedInsertion) {
+                                    is InsertedItem.Emotion -> {}
+                                    is InsertedItem.Song -> {}
+                                }
+                            }
                         }
                     }
                 }

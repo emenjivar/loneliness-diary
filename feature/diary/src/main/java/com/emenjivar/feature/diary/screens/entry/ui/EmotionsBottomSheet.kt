@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Stable
 fun EmotionsBottomSheet(
     sheetState: SheetState,
     emotions: List<EmotionData>,

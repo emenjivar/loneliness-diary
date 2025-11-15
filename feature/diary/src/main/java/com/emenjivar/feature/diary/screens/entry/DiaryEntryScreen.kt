@@ -46,8 +46,10 @@ import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.core.data.utils.ResultWrapper
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
+import com.emenjivar.feature.diary.screens.entry.ui.EmotionViewBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.EmotionsBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.MusicBottomSheet
+import com.emenjivar.feature.diary.screens.entry.ui.rememberBottomSheetStateWithData
 import com.emenjivar.feature.diary.util.DELAY_FOCUS
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -103,6 +105,7 @@ internal fun DiaryEntryScreen(
     val musicSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
+    val emotionViewSheetState = rememberBottomSheetStateWithData<EmotionData>()
     val coroutineScope = rememberCoroutineScope()
     val localKeyboard = LocalSoftwareKeyboardController.current
 
@@ -251,7 +254,12 @@ internal fun DiaryEntryScreen(
                                 focusRequester.freeFocus()
 
                                 when (selectedInsertion) {
-                                    is InsertedItem.Emotion -> {}
+                                    is InsertedItem.Emotion -> {
+                                        coroutineScope.launch {
+                                            //delay(500)
+                                            emotionViewSheetState.expand(selectedInsertion.data)
+                                        }
+                                    }
                                     is InsertedItem.Song -> {}
                                 }
                             }
@@ -378,6 +386,10 @@ internal fun DiaryEntryScreen(
                 localKeyboard?.show()
             }
         }
+    )
+
+    EmotionViewBottomSheet(
+        sheetState = emotionViewSheetState
     )
 
     LaunchedEffect(Unit) {

@@ -1,5 +1,6 @@
 package com.emenjivar.feature.diary.screens.entry
 
+import android.util.Log
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -149,6 +150,15 @@ internal fun DiaryEntryScreen(
                     val isAdding = updatedValue.text.length > textFieldValue.value.text.length
                     val cursorIndex = updatedValue.selection.start
 
+                    Log.wtf("DiaryEntryScreen", "selection: $updatedValue")
+                    Log.wtf("DiaryEntryScreen", "insertions: $insertions")
+                    val itemSelected = insertions.find {
+                        updatedValue.selection.start >= it.startIndex && updatedValue.selection.end <= it.endIndex
+                    }
+
+
+                    Log.wtf("DiaryEntryScreen", "itemSelected: $itemSelected")
+
                     when {
                         isDeleting -> {
                             // Insertion selected by the cursor pointer
@@ -241,28 +251,28 @@ internal fun DiaryEntryScreen(
                                 annotatedString = newAnnotatedString
                             )
 
-                            // Open the respective bottomSheet when the cursor is within the range of the insertion
-                            val selectedInsertion = insertions.firstOrNull { insertion ->
-                                val startBound = updatedValue.selection.start > insertion.startIndex
-                                val endBound = updatedValue.selection.start < insertion.startIndex + insertion.length - 1
-                                startBound && endBound
-                            }
-
-                            // Click/tap over the rich text insertion
-                            if (selectedInsertion != null){
-                                localKeyboard?.hide()
-                                focusRequester.freeFocus()
-
-                                when (selectedInsertion) {
-                                    is InsertedItem.Emotion -> {
-                                        coroutineScope.launch {
-                                            //delay(500)
-                                            emotionViewSheetState.expand(selectedInsertion.data)
-                                        }
-                                    }
-                                    is InsertedItem.Song -> {}
-                                }
-                            }
+//                            // Open the respective bottomSheet when the cursor is within the range of the insertion
+//                            val selectedInsertion = insertions.firstOrNull { insertion ->
+//                                val startBound = updatedValue.selection.start > insertion.startIndex
+//                                val endBound = updatedValue.selection.start < insertion.startIndex + insertion.length - 1
+//                                startBound && endBound
+//                            }
+//
+//                            // Click/tap over the rich text insertion
+//                            if (selectedInsertion != null){
+//                                localKeyboard?.hide()
+//                                focusRequester.freeFocus()
+//
+//                                when (selectedInsertion) {
+//                                    is InsertedItem.Emotion -> {
+//                                        coroutineScope.launch {
+//                                            //delay(500)
+//                                            emotionViewSheetState.expand(selectedInsertion.data)
+//                                        }
+//                                    }
+//                                    is InsertedItem.Song -> {}
+//                                }
+//                            }
                         }
                     }
                 }

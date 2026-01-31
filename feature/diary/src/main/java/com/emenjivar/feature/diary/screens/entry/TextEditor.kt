@@ -50,6 +50,7 @@ sealed class InsertedItem(
     }
 
     val length = text.length
+    val endIndex = startIndex + length
 }
 
 fun applyStylesToAnnotatedString(

@@ -153,10 +153,9 @@ internal fun DiaryEntryScreen(
                     Log.wtf("DiaryEntryScreen", "selection: $updatedValue")
                     Log.wtf("DiaryEntryScreen", "insertions: $insertions")
                     val itemSelected = insertions.find {
-                        updatedValue.selection.start >= it.startIndex && updatedValue.selection.end <= it.endIndex
+                        updatedValue.selection.start >= it.startIndex && updatedValue.selection.end <= (it.startIndex + it.length)
                     }
-
-
+                    // TODO: this is the clicked insertion, this should be loaded somehow in the UI
                     Log.wtf("DiaryEntryScreen", "itemSelected: $itemSelected")
 
                     when {

@@ -1,5 +1,7 @@
+@file:Suppress("CyclomaticComplexMethod", "MaxLineLength")
 package com.emenjivar.feature.diary.screens.entry
 
+import android.util.Log
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -46,8 +48,10 @@ import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.core.data.utils.ResultWrapper
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
+import com.emenjivar.feature.diary.screens.entry.ui.EmotionViewBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.EmotionsBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.MusicBottomSheet
+import com.emenjivar.feature.diary.screens.entry.ui.rememberBottomSheetStateWithData
 import com.emenjivar.feature.diary.util.DELAY_FOCUS
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -103,6 +107,7 @@ internal fun DiaryEntryScreen(
     val musicSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
+    val emotionViewSheetState = rememberBottomSheetStateWithData<EmotionData>()
     val coroutineScope = rememberCoroutineScope()
     val localKeyboard = LocalSoftwareKeyboardController.current
 
@@ -146,6 +151,15 @@ internal fun DiaryEntryScreen(
                     val isAdding = updatedValue.text.length > textFieldValue.value.text.length
                     val cursorIndex = updatedValue.selection.start
 
+                    Log.wtf("DiaryEntryScreen", "selection: $updatedValue")
+                    Log.wtf("DiaryEntryScreen", "insertions: $insertions")
+                    val itemSelected = insertions.find {
+                        updatedValue.selection.start >= it.startIndex &&
+                            updatedValue.selection.end <= (it.startIndex + it.length)
+                    }
+                    // TODO: this is the clicked insertion, this should be loaded somehow in the UI
+                    Log.wtf("DiaryEntryScreen", "itemSelected: $itemSelected")
+
                     when {
                         isDeleting -> {
                             // Insertion selected by the cursor pointer
@@ -177,11 +191,10 @@ internal fun DiaryEntryScreen(
                             // Apply a negative offset to the insertions ahead the cursor
                             insertions.forEachIndexed { index, insertion ->
                                 if (insertion.startIndex + insertion.length > cursorIndex) {
-                                    val data = insertion as InsertedItem.Emotion
-                                    insertions[index] = data.copy(
+                                    insertions[index] = insertion.updateStartIndex(
                                         // Shift the insertions by the number of characters of the deleted insertion
                                         // Or just shift by 1 (assuming there's no multi selection)
-                                        startIndex = data.startIndex - (cursorInsertedItem?.length ?: 1)
+                                        newStartIndex = insertion.startIndex - (cursorInsertedItem?.length ?: 1)
                                     )
                                 }
                             }
@@ -214,9 +227,8 @@ internal fun DiaryEntryScreen(
                             // Apply a positive offset of the insertion ahead the cursor
                             insertions.forEachIndexed { index, insertion ->
                                 if (insertion.startIndex + insertion.length >= cursorIndex) {
-                                    val data = insertion as InsertedItem.Emotion
-                                    insertions[index] = data.copy(
-                                        startIndex = data.startIndex + (updatedValue.selection.length + 1)
+                                    insertions[index] = insertion.updateStartIndex(
+                                        newStartIndex = insertion.startIndex + (updatedValue.selection.length + 1)
                                     )
                                 }
                             }
@@ -239,6 +251,29 @@ internal fun DiaryEntryScreen(
                             textFieldValue.value = updatedValue.copy(
                                 annotatedString = newAnnotatedString
                             )
+
+//                            // Open the respective bottomSheet when the cursor is within the range of the insertion
+//                            val selectedInsertion = insertions.firstOrNull { insertion ->
+//                                val startBound = updatedValue.selection.start > insertion.startIndex
+//                                val endBound = updatedValue.selection.start < insertion.startIndex + insertion.length - 1
+//                                startBound && endBound
+//                            }
+//
+//                            // Click/tap over the rich text insertion
+//                            if (selectedInsertion != null){
+//                                localKeyboard?.hide()
+//                                focusRequester.freeFocus()
+//
+//                                when (selectedInsertion) {
+//                                    is InsertedItem.Emotion -> {
+//                                        coroutineScope.launch {
+//                                            //delay(500)
+//                                            emotionViewSheetState.expand(selectedInsertion.data)
+//                                        }
+//                                    }
+//                                    is InsertedItem.Song -> {}
+//                                }
+//                            }
                         }
                     }
                 }
@@ -318,7 +353,56 @@ internal fun DiaryEntryScreen(
         recentSongs = emptyList(),
         search = search,
         onSearchSong = uiState.onSearchSong,
-        onTriggerImmediateSearch = uiState.onTriggerImmediateSearch
+        onTriggerImmediateSearch = uiState.onTriggerImmediateSearch,
+        onClickSong = { song ->
+            coroutineScope.launch {
+                musicSheetState.hide()
+
+                if (
+                    shouldBlockInsertion(
+                        selection = textFieldValue.value.selection,
+                        insertions = insertions
+                    )
+                ) {
+                    // TODO: just append the song at the end of the text
+                    //  To prevent another API search
+                    return@launch
+                }
+
+                val originalTextField = textFieldValue.value
+                val song: InsertedItem = InsertedItem.Song(
+                    data = song,
+                    startIndex = originalTextField.selection.start
+                )
+
+                insertItem(
+                    insertions = insertions,
+                    newElement = song
+                )
+
+                val updatedText = insertText(
+                    original = originalTextField.text,
+                    newElement = song
+                )
+
+                textFieldValue.value = originalTextField.copy(
+                    annotatedString = applyStylesToAnnotatedString(
+                        rawText = updatedText,
+                        insertions = insertions
+                    ),
+                    // Put the cursor at the end of the inserted word
+                    selection = TextRange(
+                        originalTextField.selection.end + song.length
+                    )
+                )
+
+                localKeyboard?.show()
+            }
+        }
+    )
+
+    EmotionViewBottomSheet(
+        sheetState = emotionViewSheetState
     )
 
     LaunchedEffect(Unit) {

@@ -1,25 +1,54 @@
 @file:Suppress("MagicNumber", "MatchingDeclarationName")
+
 package com.emenjivar.feature.diary.screens.entry
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import com.emenjivar.core.data.models.EmotionData
+import com.emenjivar.core.data.models.SongModel
 
 sealed class InsertedItem(
     val text: String,
+    val textDecoration: TextDecoration,
+    val fontStyle: FontStyle,
+    val fontWeight: FontWeight,
     open val color: Color,
     open val startIndex: Int
 ) {
+    abstract fun updateStartIndex(newStartIndex: Int): InsertedItem
+
     data class Emotion(
         val data: EmotionData,
         override val startIndex: Int
     ) : InsertedItem(
             text = data.name,
+            textDecoration = TextDecoration.None,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Normal,
             color = Color(data.color),
             startIndex = startIndex
-        )
+        ) {
+        override fun updateStartIndex(newStartIndex: Int) = copy(startIndex = newStartIndex)
+    }
+
+    data class Song(
+        val data: SongModel,
+        override val startIndex: Int
+    ) : InsertedItem(
+            text = "${data.title} by ${data.artist} \uD83C\uDFB5",
+            textDecoration = TextDecoration.Underline,
+            fontStyle = FontStyle.Italic,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            startIndex = startIndex
+        ) {
+        override fun updateStartIndex(newStartIndex: Int) = copy(startIndex = newStartIndex)
+    }
 
     val length = text.length
 }
@@ -38,7 +67,12 @@ fun applyStylesToAnnotatedString(
                 rawText.length
             )
             addStyle(
-                style = SpanStyle(color = insertion.color),
+                style = SpanStyle(
+                    color = insertion.color,
+                    textDecoration = insertion.textDecoration,
+                    fontStyle = insertion.fontStyle,
+                    fontWeight = insertion.fontWeight
+                ),
                 start = insertion.startIndex,
                 end = endIndex
             )
@@ -84,9 +118,8 @@ fun insertItem(
 
         val before = filter { it.startIndex < newElement.startIndex }
         val after = filter { it.startIndex >= newElement.startIndex }
-            .filterIsInstance<InsertedItem.Emotion>()
             .map { item ->
-                item.copy(startIndex = item.startIndex + newElement.length)
+                item.updateStartIndex(newStartIndex = item.startIndex + newElement.length)
             }
 
         val updatedList = before + listOf(newElement) + after

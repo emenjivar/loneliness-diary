@@ -22,4 +22,11 @@ object Mocks {
         albumCover = "fake_url",
         albumCoverSmall = "fake_url"
     )
+
+    val emotion1 = EmotionData(
+        name = "sadness",
+        color = 0xff0d47a1,
+        description = "Emotional pain associated with, or characterized by, " +
+            "feeling of disadvantage, loss, despair, grief, helplessness, disappointment and sorrow."
+    )
 }

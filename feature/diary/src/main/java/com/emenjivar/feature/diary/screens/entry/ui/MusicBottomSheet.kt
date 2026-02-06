@@ -93,7 +93,8 @@ fun MusicBottomSheet(
     search: String,
     modifier: Modifier = Modifier,
     onSearchSong: (String) -> Unit,
-    onTriggerImmediateSearch: () -> Unit
+    onTriggerImmediateSearch: () -> Unit,
+    onClickSong: (SongModel) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     if (sheetState.isVisible) {
@@ -113,6 +114,7 @@ fun MusicBottomSheet(
                 modifier = Modifier.fillMaxSize(),
                 onSearchSong = onSearchSong,
                 onTriggerImmediateSearch = onTriggerImmediateSearch,
+                onClickSong = onClickSong,
                 onDismiss = {
                     coroutineScope.launch { sheetState.hide() }
                 }
@@ -132,6 +134,7 @@ private fun MusicBottomSheetLayout(
     modifier: Modifier = Modifier,
     onSearchSong: (String) -> Unit,
     onTriggerImmediateSearch: () -> Unit,
+    onClickSong: (SongModel) -> Unit,
     onDismiss: () -> Unit
 ) {
     var isPlaying by remember { mutableStateOf(false) }
@@ -270,8 +273,7 @@ private fun MusicBottomSheetLayout(
 
         LazyColumn(
             modifier = Modifier.padding(vertical = 20.dp),
-            state = listState,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            state = listState
         ) {
             if (recentSongs.isNotEmpty()) {
                 item {
@@ -296,7 +298,7 @@ private fun MusicBottomSheetLayout(
                             }
                         },
                         onClick = {
-                            // TODO: add here logic for inserting song in text entry
+                            onClickSong(song)
                         }
                     )
                 }
@@ -336,7 +338,7 @@ private fun MusicBottomSheetLayout(
                                 }
                             },
                             onClick = {
-                                // TODO: add here logic for inserting song in text entry
+                                onClickSong(song)
                             }
                         )
                     }
@@ -357,9 +359,10 @@ private fun SongItem(
 ) {
     Row(
         modifier = modifier
+            .clickable { onClick() }
             .padding(start = 20.dp)
-            .clickable { onClick() },
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+            .padding(vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(
@@ -409,6 +412,7 @@ private fun MusicBottomSheetLayoutPreview() {
         search = "",
         onSearchSong = {},
         onTriggerImmediateSearch = {},
+        onClickSong = {},
         onDismiss = {}
     )
 }

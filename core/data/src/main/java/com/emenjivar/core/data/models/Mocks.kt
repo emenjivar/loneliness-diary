@@ -26,6 +26,7 @@ object Mocks {
     val emotion1 = EmotionData(
         name = "sadness",
         color = 0xff0d47a1,
-        description = "Emotional pain associated with, or characterized by, feeling of disadvantage, loss, despair, grief, helplessness, disappointment and sorrow."
+        description = "Emotional pain associated with, or characterized by, " +
+            "feeling of disadvantage, loss, despair, grief, helplessness, disappointment and sorrow."
     )
 }

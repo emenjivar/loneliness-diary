@@ -7,12 +7,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,42 +20,10 @@ import com.emenjivar.core.data.models.Mocks
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
-class BottomSheetStateWithData<T> (
-    val sheetState: SheetState
-) {
-    private var _data: T? = null
-    val data: T
-        get() = _data ?: throw IllegalStateException("Data not set")
-
-    val nullableData: T?
-        get() = _data
-
-    suspend fun expand(new: T) {
-        _data = new
-        sheetState.expand()
-    }
-
-    suspend fun hide() {
-        sheetState.hide()
-        _data = null
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun <T> rememberBottomSheetStateWithData(
-    sheetState: SheetState = rememberModalBottomSheetState()
-): BottomSheetStateWithData<T> {
-    return remember(sheetState) {
-        BottomSheetStateWithData(sheetState)
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Stable
 fun EmotionViewBottomSheet(
-    sheetState: BottomSheetStateWithData<EmotionData>,
+    sheetState: BottomSheetStateWithData<EmotionData>
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -76,7 +41,6 @@ fun EmotionViewBottomSheet(
             )
         }
     }
-
 }
 
 @Composable
@@ -92,7 +56,7 @@ private fun EmotionViewBottomSheetLayout(
         )
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.padding(20.dp)
         ) {
             Text(
                 text = emotion.name.replaceFirstChar { it.uppercase() },
@@ -112,7 +76,6 @@ private fun EmotionViewBottomSheetLayout(
             )
             // TODO: might be more convenient to use a markdown format to load arbitraty information
         }
-
     }
 }
 

@@ -1,4 +1,5 @@
 @file:Suppress("MagicNumber", "MatchingDeclarationName")
+
 package com.emenjivar.feature.diary.screens.entry
 
 import androidx.compose.ui.graphics.Color
@@ -38,14 +39,14 @@ sealed class InsertedItem(
     data class Song(
         val data: SongModel,
         override val startIndex: Int
-    ): InsertedItem(
-        text = "${data.title} by ${data.artist} \uD83C\uDFB5",
-        textDecoration = TextDecoration.Underline,
-        fontStyle = FontStyle.Italic,
-        fontWeight = FontWeight.Bold,
-        color = Color.Black,
-        startIndex = startIndex
-    ) {
+    ) : InsertedItem(
+            text = "${data.title} by ${data.artist} \uD83C\uDFB5",
+            textDecoration = TextDecoration.Underline,
+            fontStyle = FontStyle.Italic,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            startIndex = startIndex
+        ) {
         override fun updateStartIndex(newStartIndex: Int) = copy(startIndex = newStartIndex)
     }
 

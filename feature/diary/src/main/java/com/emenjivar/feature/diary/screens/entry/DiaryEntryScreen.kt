@@ -1,3 +1,4 @@
+@file:Suppress("CyclomaticComplexMethod", "MaxLineLength")
 package com.emenjivar.feature.diary.screens.entry
 
 import android.util.Log
@@ -153,7 +154,8 @@ internal fun DiaryEntryScreen(
                     Log.wtf("DiaryEntryScreen", "selection: $updatedValue")
                     Log.wtf("DiaryEntryScreen", "insertions: $insertions")
                     val itemSelected = insertions.find {
-                        updatedValue.selection.start >= it.startIndex && updatedValue.selection.end <= (it.startIndex + it.length)
+                        updatedValue.selection.start >= it.startIndex &&
+                            updatedValue.selection.end <= (it.startIndex + it.length)
                     }
                     // TODO: this is the clicked insertion, this should be loaded somehow in the UI
                     Log.wtf("DiaryEntryScreen", "itemSelected: $itemSelected")
@@ -356,10 +358,12 @@ internal fun DiaryEntryScreen(
             coroutineScope.launch {
                 musicSheetState.hide()
 
-                if (shouldBlockInsertion(
-                    selection = textFieldValue.value.selection,
-                    insertions = insertions
-                )) {
+                if (
+                    shouldBlockInsertion(
+                        selection = textFieldValue.value.selection,
+                        insertions = insertions
+                    )
+                ) {
                     // TODO: just append the song at the end of the text
                     //  To prevent another API search
                     return@launch

@@ -59,6 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -87,7 +88,7 @@ import kotlinx.coroutines.launch
 @Composable
 @Stable
 fun MusicBottomSheet(
-    sheetState: SheetState,
+    sheetState: BottomSheetStateWithData<Unit>,
     songs: ResultWrapper<List<SongModel>>,
     recentSongs: List<SongModel>,
     search: String,
@@ -97,10 +98,11 @@ fun MusicBottomSheet(
     onClickSong: (SongModel) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    if (sheetState.isVisible) {
+    val showBottomSheet = sheetState.showBottomSheet.collectAsStateWithLifecycle()
+    if (showBottomSheet.value) {
         ModalBottomSheet(
             modifier = modifier.statusBarsPadding(),
-            sheetState = sheetState,
+            sheetState = sheetState.sheetState,
             dragHandle = null,
             sheetGesturesEnabled = false,
             onDismissRequest = {

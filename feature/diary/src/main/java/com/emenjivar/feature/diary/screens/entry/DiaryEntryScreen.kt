@@ -22,7 +22,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -32,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -51,6 +51,7 @@ import com.emenjivar.feature.diary.navigation.NavigationAction
 import com.emenjivar.feature.diary.screens.entry.ui.EmotionViewBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.EmotionsBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.MusicBottomSheet
+import com.emenjivar.feature.diary.screens.entry.ui.rememberBottomSheetState
 import com.emenjivar.feature.diary.screens.entry.ui.rememberBottomSheetStateWithData
 import com.emenjivar.feature.diary.util.DELAY_FOCUS
 import kotlinx.coroutines.delay
@@ -75,7 +76,7 @@ internal fun DiaryEntryScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 internal fun DiaryEntryScreen(
     uiState: DiaryEntryUiState
@@ -103,11 +104,9 @@ internal fun DiaryEntryScreen(
     val isSaveEnabled by remember(initialText) {
         derivedStateOf { textFieldValue.value.text.isNotBlank() }
     }
-    val emotionsSheetState = rememberModalBottomSheetState()
-    val musicSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
-    val emotionViewSheetState = rememberBottomSheetStateWithData<EmotionData>()
+    val emotionsSheetState = rememberBottomSheetState()
+    val musicSheetState = rememberBottomSheetState()
+    val emotionDetailSheetState = rememberBottomSheetStateWithData<EmotionData>()
     val coroutineScope = rememberCoroutineScope()
     val localKeyboard = LocalSoftwareKeyboardController.current
 
@@ -151,14 +150,10 @@ internal fun DiaryEntryScreen(
                     val isAdding = updatedValue.text.length > textFieldValue.value.text.length
                     val cursorIndex = updatedValue.selection.start
 
-                    Log.wtf("DiaryEntryScreen", "selection: $updatedValue")
-                    Log.wtf("DiaryEntryScreen", "insertions: $insertions")
                     val itemSelected = insertions.find {
                         updatedValue.selection.start >= it.startIndex &&
-                            updatedValue.selection.end <= (it.startIndex + it.length)
+                                updatedValue.selection.end <= (it.startIndex + it.length)
                     }
-                    // TODO: this is the clicked insertion, this should be loaded somehow in the UI
-                    Log.wtf("DiaryEntryScreen", "itemSelected: $itemSelected")
 
                     when {
                         isDeleting -> {
@@ -252,28 +247,17 @@ internal fun DiaryEntryScreen(
                                 annotatedString = newAnnotatedString
                             )
 
-//                            // Open the respective bottomSheet when the cursor is within the range of the insertion
-//                            val selectedInsertion = insertions.firstOrNull { insertion ->
-//                                val startBound = updatedValue.selection.start > insertion.startIndex
-//                                val endBound = updatedValue.selection.start < insertion.startIndex + insertion.length - 1
-//                                startBound && endBound
-//                            }
-//
-//                            // Click/tap over the rich text insertion
-//                            if (selectedInsertion != null){
-//                                localKeyboard?.hide()
-//                                focusRequester.freeFocus()
-//
-//                                when (selectedInsertion) {
-//                                    is InsertedItem.Emotion -> {
-//                                        coroutineScope.launch {
-//                                            //delay(500)
-//                                            emotionViewSheetState.expand(selectedInsertion.data)
-//                                        }
-//                                    }
-//                                    is InsertedItem.Song -> {}
-//                                }
-//                            }
+                            if(itemSelected != null) {
+                                // Inserted item was clicked, open the respective bottom sheet
+                                if (itemSelected is InsertedItem.Emotion) {
+                                    coroutineScope.launch {
+                                        localKeyboard?.hide()
+                                        emotionDetailSheetState.expand(itemSelected.data)
+                                    }
+                                } else if (itemSelected is InsertedItem.Song) {
+                                    Log.wtf("DiaryEntryScreen", "Opening the song: ${itemSelected.data}")
+                                }
+                            }
                         }
                     }
                 }
@@ -288,12 +272,12 @@ internal fun DiaryEntryScreen(
                     DiaryEntryAction.EMOTION -> {
                         coroutineScope.launch {
                             localKeyboard?.hide()
-                            emotionsSheetState.show()
+                            emotionsSheetState.expand(Unit)
                         }
                     }
                     DiaryEntryAction.MUSIC -> {
                         coroutineScope.launch {
-                            musicSheetState.expand()
+                            musicSheetState.expand(Unit)
                         }
                     }
                 }
@@ -402,7 +386,7 @@ internal fun DiaryEntryScreen(
     )
 
     EmotionViewBottomSheet(
-        sheetState = emotionViewSheetState
+        sheetState = emotionDetailSheetState
     )
 
     LaunchedEffect(Unit) {

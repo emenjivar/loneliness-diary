@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.core.data.models.Mocks
 import kotlinx.coroutines.launch
@@ -26,8 +27,9 @@ fun EmotionViewBottomSheet(
     sheetState: BottomSheetStateWithData<EmotionData>
 ) {
     val coroutineScope = rememberCoroutineScope()
+    var showBottomSheet = sheetState.showBottomSheet.collectAsStateWithLifecycle()
 
-    if (sheetState.sheetState.isVisible) {
+    if (showBottomSheet.value) {
         ModalBottomSheet(
             sheetState = sheetState.sheetState,
             onDismissRequest = {

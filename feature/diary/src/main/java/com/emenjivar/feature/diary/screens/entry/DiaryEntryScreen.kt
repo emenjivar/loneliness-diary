@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -48,8 +49,8 @@ import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.core.data.utils.ResultWrapper
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
-import com.emenjivar.feature.diary.screens.entry.ui.EmotionViewBottomSheet
-import com.emenjivar.feature.diary.screens.entry.ui.EmotionsBottomSheet
+import com.emenjivar.feature.diary.screens.entry.ui.EmotionDetailBottomSheet
+import com.emenjivar.feature.diary.screens.entry.ui.EmotionListBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.MusicBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.rememberBottomSheetState
 import com.emenjivar.feature.diary.screens.entry.ui.rememberBottomSheetStateWithData
@@ -104,11 +105,15 @@ internal fun DiaryEntryScreen(
     val isSaveEnabled by remember(initialText) {
         derivedStateOf { textFieldValue.value.text.isNotBlank() }
     }
-    val emotionsSheetState = rememberBottomSheetState()
+
+    val emotionListSheetState = rememberBottomSheetState()
     val musicSheetState = rememberBottomSheetState()
     val emotionDetailSheetState = rememberBottomSheetStateWithData<EmotionData>()
     val coroutineScope = rememberCoroutineScope()
     val localKeyboard = LocalSoftwareKeyboardController.current
+
+    // Decide whether the selection displays its respective modal
+    var shouldProcessItemSelection by remember { mutableStateOf(true) }
 
     Scaffold(
         topBar = {
@@ -247,7 +252,7 @@ internal fun DiaryEntryScreen(
                                 annotatedString = newAnnotatedString
                             )
 
-                            if(itemSelected != null) {
+                            if(itemSelected != null && shouldProcessItemSelection) {
                                 // Inserted item was clicked, open the respective bottom sheet
                                 if (itemSelected is InsertedItem.Emotion) {
                                     coroutineScope.launch {
@@ -271,12 +276,15 @@ internal fun DiaryEntryScreen(
                 when (action) {
                     DiaryEntryAction.EMOTION -> {
                         coroutineScope.launch {
+                            shouldProcessItemSelection = false
                             localKeyboard?.hide()
-                            emotionsSheetState.expand(Unit)
+                             focusRequester.freeFocus()
+                            emotionListSheetState.expand(Unit)
                         }
                     }
                     DiaryEntryAction.MUSIC -> {
                         coroutineScope.launch {
+                            shouldProcessItemSelection = false
                             musicSheetState.expand(Unit)
                         }
                     }
@@ -285,12 +293,12 @@ internal fun DiaryEntryScreen(
         }
     }
 
-    EmotionsBottomSheet(
-        sheetState = emotionsSheetState,
+    EmotionListBottomSheet(
+        sheetState = emotionListSheetState,
         emotions = emotions,
         onEmotionClick = { selectedEmotion ->
             coroutineScope.launch {
-                emotionsSheetState.hide()
+                emotionListSheetState.hide()
                 if (shouldBlockInsertion(
                         selection = textFieldValue.value.selection,
                         insertions = insertions
@@ -325,9 +333,11 @@ internal fun DiaryEntryScreen(
                         originalTextField.selection.end + emotion.length
                     )
                 )
-
-                localKeyboard?.show()
             }
+        },
+        onDismiss = {
+            shouldProcessItemSelection = true
+            focusRequester.requestFocus()
         }
     )
 
@@ -382,10 +392,13 @@ internal fun DiaryEntryScreen(
 
                 localKeyboard?.show()
             }
+        },
+        onDismiss = {
+            shouldProcessItemSelection = true
         }
     )
 
-    EmotionViewBottomSheet(
+    EmotionDetailBottomSheet(
         sheetState = emotionDetailSheetState
     )
 

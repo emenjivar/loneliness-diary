@@ -10,6 +10,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,13 +24,13 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Stable
-fun EmotionViewBottomSheet(
+fun EmotionDetailBottomSheet(
     sheetState: BottomSheetStateWithData<EmotionData>
 ) {
     val coroutineScope = rememberCoroutineScope()
-    var showBottomSheet = sheetState.showBottomSheet.collectAsStateWithLifecycle()
+    val showBottomSheet by sheetState.showBottomSheet.collectAsStateWithLifecycle()
 
-    if (showBottomSheet.value) {
+    if (showBottomSheet) {
         ModalBottomSheet(
             sheetState = sheetState.sheetState,
             onDismissRequest = {
@@ -38,7 +39,7 @@ fun EmotionViewBottomSheet(
                 }
             }
         ) {
-            EmotionViewBottomSheetLayout(
+            EmotionDetailBottomSheetLayout(
                 emotion = sheetState.data
             )
         }
@@ -47,7 +48,7 @@ fun EmotionViewBottomSheet(
 
 @Composable
 @Stable
-private fun EmotionViewBottomSheetLayout(
+private fun EmotionDetailBottomSheetLayout(
     emotion: EmotionData,
     modifier: Modifier = Modifier
 ) {
@@ -84,7 +85,7 @@ private fun EmotionViewBottomSheetLayout(
 @Preview
 @Composable
 private fun EmotionViewBottomSheetLayoutPreview() {
-    EmotionViewBottomSheetLayout(
+    EmotionDetailBottomSheetLayout(
         emotion = Mocks.emotion1
     )
 }

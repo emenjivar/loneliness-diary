@@ -31,7 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -95,18 +94,21 @@ fun MusicBottomSheet(
     modifier: Modifier = Modifier,
     onSearchSong: (String) -> Unit,
     onTriggerImmediateSearch: () -> Unit,
-    onClickSong: (SongModel) -> Unit
+    onClickSong: (SongModel) -> Unit,
+    onDismiss: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val showBottomSheet = sheetState.showBottomSheet.collectAsStateWithLifecycle()
-    if (showBottomSheet.value) {
+    val showBottomSheet by sheetState.showBottomSheet.collectAsStateWithLifecycle()
+    if (showBottomSheet) {
         ModalBottomSheet(
             modifier = modifier.statusBarsPadding(),
             sheetState = sheetState.sheetState,
             dragHandle = null,
             sheetGesturesEnabled = false,
             onDismissRequest = {
-                coroutineScope.launch { sheetState.hide() }
+                coroutineScope
+                    .launch { sheetState.hide() }
+                    .invokeOnCompletion { onDismiss() }
             }
         ) {
             MusicBottomSheetLayout(
@@ -118,7 +120,9 @@ fun MusicBottomSheet(
                 onTriggerImmediateSearch = onTriggerImmediateSearch,
                 onClickSong = onClickSong,
                 onDismiss = {
-                    coroutineScope.launch { sheetState.hide() }
+                    coroutineScope
+                        .launch { sheetState.hide() }
+                        .invokeOnCompletion { onDismiss() }
                 }
             )
         }

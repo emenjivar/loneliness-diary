@@ -299,6 +299,8 @@ internal fun DiaryEntryScreen(
         onEmotionClick = { selectedEmotion ->
             coroutineScope.launch {
                 emotionListSheetState.hide()
+
+                shouldProcessItemSelection = true
                 if (shouldBlockInsertion(
                         selection = textFieldValue.value.selection,
                         insertions = insertions
@@ -352,7 +354,7 @@ internal fun DiaryEntryScreen(
         onClickSong = { song ->
             coroutineScope.launch {
                 musicSheetState.hide()
-
+                shouldProcessItemSelection = true
                 if (
                     shouldBlockInsertion(
                         selection = textFieldValue.value.selection,

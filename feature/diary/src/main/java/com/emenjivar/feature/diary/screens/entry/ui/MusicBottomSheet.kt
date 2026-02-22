@@ -31,7 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -59,6 +58,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -87,24 +87,28 @@ import kotlinx.coroutines.launch
 @Composable
 @Stable
 fun MusicBottomSheet(
-    sheetState: SheetState,
+    sheetState: BottomSheetStateWithData<Unit>,
     songs: ResultWrapper<List<SongModel>>,
     recentSongs: List<SongModel>,
     search: String,
     modifier: Modifier = Modifier,
     onSearchSong: (String) -> Unit,
     onTriggerImmediateSearch: () -> Unit,
-    onClickSong: (SongModel) -> Unit
+    onClickSong: (SongModel) -> Unit,
+    onDismiss: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    if (sheetState.isVisible) {
+    val showBottomSheet by sheetState.showBottomSheet.collectAsStateWithLifecycle()
+    if (showBottomSheet) {
         ModalBottomSheet(
             modifier = modifier.statusBarsPadding(),
-            sheetState = sheetState,
+            sheetState = sheetState.sheetState,
             dragHandle = null,
             sheetGesturesEnabled = false,
             onDismissRequest = {
-                coroutineScope.launch { sheetState.hide() }
+                coroutineScope
+                    .launch { sheetState.hide() }
+                    .invokeOnCompletion { onDismiss() }
             }
         ) {
             MusicBottomSheetLayout(
@@ -116,7 +120,9 @@ fun MusicBottomSheet(
                 onTriggerImmediateSearch = onTriggerImmediateSearch,
                 onClickSong = onClickSong,
                 onDismiss = {
-                    coroutineScope.launch { sheetState.hide() }
+                    coroutineScope
+                        .launch { sheetState.hide() }
+                        .invokeOnCompletion { onDismiss() }
                 }
             )
         }

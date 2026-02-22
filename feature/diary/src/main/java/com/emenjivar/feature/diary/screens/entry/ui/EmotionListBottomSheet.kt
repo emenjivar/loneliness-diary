@@ -18,38 +18,41 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.emenjivar.core.data.models.EmotionData
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Stable
-fun EmotionsBottomSheet(
-    sheetState: SheetState,
+fun EmotionListBottomSheet(
+    sheetState: BottomSheetStateWithData<Unit>,
     emotions: List<EmotionData>,
-    onEmotionClick: (EmotionData) -> Unit
+    onEmotionClick: (EmotionData) -> Unit,
+    onDismiss: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    if (sheetState.isVisible) {
+    val showBottomSheet by sheetState.showBottomSheet.collectAsStateWithLifecycle()
+    if (showBottomSheet) {
         ModalBottomSheet(
-            sheetState = sheetState,
+            sheetState = sheetState.sheetState,
             onDismissRequest = {
-                coroutineScope.launch {
-                    sheetState.hide()
-                }
+                coroutineScope
+                    .launch { sheetState.hide() }
+                    .invokeOnCompletion { onDismiss() }
             }
         ) {
-            EmotionBottomSheetLayout(
+            EmotionListBottomSheetLayout(
                 emotions = emotions,
                 onClick = onEmotionClick
             )
@@ -59,7 +62,7 @@ fun EmotionsBottomSheet(
 
 @Composable
 @Stable
-private fun EmotionBottomSheetLayout(
+private fun EmotionListBottomSheetLayout(
     emotions: List<EmotionData>,
     modifier: Modifier = Modifier,
     onClick: (EmotionData) -> Unit
@@ -120,7 +123,7 @@ private fun EmotionsBottomSheetPreview() {
             description = "Feeling sorrow, typically in response to loss."
         )
     }
-    EmotionBottomSheetLayout(
+    EmotionListBottomSheetLayout(
         emotions = listOf(sad),
         onClick = {}
     )

@@ -10,11 +10,13 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.emenjivar.core.data.models.EmotionData
 import com.emenjivar.core.data.models.Mocks
 import kotlinx.coroutines.launch
@@ -22,21 +24,23 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Stable
-fun EmotionViewBottomSheet(
-    sheetState: BottomSheetStateWithData<EmotionData>
+fun EmotionDetailBottomSheet(
+    sheetState: BottomSheetStateWithData<EmotionData>,
+    onDismiss: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val showBottomSheet by sheetState.showBottomSheet.collectAsStateWithLifecycle()
 
-    if (sheetState.sheetState.isVisible) {
+    if (showBottomSheet) {
         ModalBottomSheet(
             sheetState = sheetState.sheetState,
             onDismissRequest = {
-                coroutineScope.launch {
-                    sheetState.hide()
-                }
+                coroutineScope
+                    .launch { sheetState.hide() }
+                    .invokeOnCompletion { onDismiss() }
             }
         ) {
-            EmotionViewBottomSheetLayout(
+            EmotionDetailBottomSheetLayout(
                 emotion = sheetState.data
             )
         }
@@ -45,7 +49,7 @@ fun EmotionViewBottomSheet(
 
 @Composable
 @Stable
-private fun EmotionViewBottomSheetLayout(
+private fun EmotionDetailBottomSheetLayout(
     emotion: EmotionData,
     modifier: Modifier = Modifier
 ) {
@@ -82,7 +86,7 @@ private fun EmotionViewBottomSheetLayout(
 @Preview
 @Composable
 private fun EmotionViewBottomSheetLayoutPreview() {
-    EmotionViewBottomSheetLayout(
+    EmotionDetailBottomSheetLayout(
         emotion = Mocks.emotion1
     )
 }

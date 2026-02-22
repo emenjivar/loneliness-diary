@@ -32,7 +32,7 @@ class BottomSheetStateWithData<T>(
     suspend fun expand(new: T) {
         _data = new
         _showBottomSheet.update { true }
-        delay(10L) // Prevents the modal from blinking
+        delay(EXPAND_DELAY_MS) // Prevents the modal from blinking
         sheetState.expand()
     }
 
@@ -40,6 +40,10 @@ class BottomSheetStateWithData<T>(
         sheetState.hide()
         _showBottomSheet.update { false }
         _data = null
+    }
+
+    companion object {
+        private const val EXPAND_DELAY_MS = 10L
     }
 }
 

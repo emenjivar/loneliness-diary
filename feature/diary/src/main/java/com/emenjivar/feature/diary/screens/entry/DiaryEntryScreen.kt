@@ -157,7 +157,7 @@ internal fun DiaryEntryScreen(
 
                     val itemSelected = insertions.find {
                         updatedValue.selection.start >= it.startIndex &&
-                                updatedValue.selection.end <= (it.startIndex + it.length)
+                            updatedValue.selection.end <= (it.startIndex + it.length)
                     }
 
                     when {
@@ -252,7 +252,7 @@ internal fun DiaryEntryScreen(
                                 annotatedString = newAnnotatedString
                             )
 
-                            if(itemSelected != null && shouldProcessItemSelection) {
+                            if (itemSelected != null && shouldProcessItemSelection) {
                                 // Inserted item was clicked, open the respective bottom sheet
                                 if (itemSelected is InsertedItem.Emotion) {
                                     coroutineScope.launch {

@@ -25,7 +25,8 @@ import kotlinx.coroutines.launch
 @Composable
 @Stable
 fun EmotionDetailBottomSheet(
-    sheetState: BottomSheetStateWithData<EmotionData>
+    sheetState: BottomSheetStateWithData<EmotionData>,
+    onDismiss: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showBottomSheet by sheetState.showBottomSheet.collectAsStateWithLifecycle()
@@ -34,9 +35,9 @@ fun EmotionDetailBottomSheet(
         ModalBottomSheet(
             sheetState = sheetState.sheetState,
             onDismissRequest = {
-                coroutineScope.launch {
-                    sheetState.hide()
-                }
+                coroutineScope
+                    .launch { sheetState.hide() }
+                    .invokeOnCompletion { onDismiss() }
             }
         ) {
             EmotionDetailBottomSheetLayout(

@@ -278,7 +278,7 @@ internal fun DiaryEntryScreen(
                         coroutineScope.launch {
                             shouldProcessItemSelection = false
                             localKeyboard?.hide()
-                             focusRequester.freeFocus()
+                            focusRequester.freeFocus()
                             emotionListSheetState.expand(Unit)
                         }
                     }
@@ -338,6 +338,7 @@ internal fun DiaryEntryScreen(
         onDismiss = {
             shouldProcessItemSelection = true
             focusRequester.requestFocus()
+            localKeyboard?.show()
         }
     )
 
@@ -395,11 +396,18 @@ internal fun DiaryEntryScreen(
         },
         onDismiss = {
             shouldProcessItemSelection = true
+            focusRequester.requestFocus()
+            localKeyboard?.show()
         }
     )
 
     EmotionDetailBottomSheet(
-        sheetState = emotionDetailSheetState
+        sheetState = emotionDetailSheetState,
+        onDismiss = {}
+//        onDismiss = {
+//            focusRequester.requestFocus()
+//            localKeyboard?.show()
+//        }
     )
 
     LaunchedEffect(Unit) {

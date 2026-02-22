@@ -32,7 +32,7 @@ class BottomSheetStateWithData<T>(
     suspend fun expand(new: T) {
         _data = new
         _showBottomSheet.update { true }
-        delay(10L) // TODO: prevent blinks when opening the shit
+        delay(10L) // Prevents the modal from blinking
         sheetState.expand()
     }
 

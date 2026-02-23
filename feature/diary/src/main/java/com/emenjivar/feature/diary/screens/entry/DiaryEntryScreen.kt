@@ -1,7 +1,6 @@
 @file:Suppress("CyclomaticComplexMethod", "MaxLineLength")
 package com.emenjivar.feature.diary.screens.entry
 
-import android.util.Log
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -46,12 +45,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.emenjivar.core.data.models.EmotionData
+import com.emenjivar.core.data.models.SongModel
 import com.emenjivar.core.data.utils.ResultWrapper
 import com.emenjivar.feature.diary.navigation.HandleNavigation
 import com.emenjivar.feature.diary.navigation.NavigationAction
 import com.emenjivar.feature.diary.screens.entry.ui.EmotionDetailBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.EmotionListBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.MusicBottomSheet
+import com.emenjivar.feature.diary.screens.entry.ui.MusicDetailBottomSheet
 import com.emenjivar.feature.diary.screens.entry.ui.rememberBottomSheetState
 import com.emenjivar.feature.diary.screens.entry.ui.rememberBottomSheetStateWithData
 import com.emenjivar.feature.diary.util.DELAY_FOCUS
@@ -109,6 +110,7 @@ internal fun DiaryEntryScreen(
     val emotionListSheetState = rememberBottomSheetState()
     val musicSheetState = rememberBottomSheetState()
     val emotionDetailSheetState = rememberBottomSheetStateWithData<EmotionData>()
+    val musicDetailSheetState = rememberBottomSheetStateWithData<SongModel>()
     val coroutineScope = rememberCoroutineScope()
     val localKeyboard = LocalSoftwareKeyboardController.current
 
@@ -260,7 +262,10 @@ internal fun DiaryEntryScreen(
                                         emotionDetailSheetState.expand(itemSelected.data)
                                     }
                                 } else if (itemSelected is InsertedItem.Song) {
-                                    Log.wtf("DiaryEntryScreen", "Opening the song: ${itemSelected.data}")
+                                    coroutineScope.launch {
+                                        localKeyboard?.hide()
+                                        musicDetailSheetState.expand(itemSelected.data)
+                                    }
                                 }
                             }
                         }
@@ -410,6 +415,11 @@ internal fun DiaryEntryScreen(
 //            focusRequester.requestFocus()
 //            localKeyboard?.show()
 //        }
+    )
+
+    MusicDetailBottomSheet(
+        sheetState = musicDetailSheetState,
+        onDismiss = {}
     )
 
     LaunchedEffect(Unit) {

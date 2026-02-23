@@ -183,7 +183,13 @@ private fun MusicDetailBottomSheetLayout(
             Slider(
                 value = currentPosition.toFloat(),
                 valueRange = 0f..totalDuration.toFloat(),
-                onValueChange = {}
+                onValueChange = { millis ->
+                    exoplayer.pause()
+                    exoplayer.seekTo(millis.toLong())
+                },
+                onValueChangeFinished = {
+                    exoplayer.play()
+                }
             )
 
             Row(

@@ -162,7 +162,7 @@ private fun MusicDetailBottomSheetLayout(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(song.albumCover)
                     .crossfade(true)
-                    .diskCacheKey(song.albumCover)
+                    .diskCacheKey(song.albumCover) // TODO: deezer does not allow storing on disk
                     .memoryCacheKey(song.albumCover)
                     .build(),
                 contentDescription = "Cover of the song"

@@ -93,6 +93,14 @@ private fun MusicDetailBottomSheetLayout(
                     override fun onIsPlayingChanged(playing: Boolean) {
                         isPlaying = playing
                     }
+
+                    override fun onPlaybackStateChanged(playbackState: Int) {
+                        // Rewind to the beginning so the song can be player
+                        // again after it ends
+                        if (playbackState == Player.STATE_ENDED) {
+                            seekTo(0)
+                        }
+                    }
                 }
             )
         }

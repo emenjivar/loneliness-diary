@@ -1,7 +1,6 @@
 @file:Suppress("CyclomaticComplexMethod", "MaxLineLength")
 package com.emenjivar.feature.diary.screens.entry
 
-import android.util.Log
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row

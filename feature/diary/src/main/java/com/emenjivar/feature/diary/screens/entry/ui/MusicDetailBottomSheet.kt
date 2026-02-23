@@ -82,12 +82,13 @@ fun MusicDetailBottomSheet(
 
 private val ImageSize = 100.dp
 private val InnerPadding = 20.dp
+private const val DELAY_REFRESH_TIME = 500L
 
 @Composable
 @Stable
 private fun MusicDetailBottomSheetLayout(
     song: SongModel,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     var isPlaying by remember { mutableStateOf(false) }
     val exoplayer = LocalExoplayerProvider.current.exoPlayer
@@ -121,7 +122,7 @@ private fun MusicDetailBottomSheetLayout(
     LaunchedEffect(isPlaying) {
         while (isPlaying) {
             currentPosition = exoplayer.currentPosition
-            delay(500L)
+            delay(DELAY_REFRESH_TIME)
         }
     }
 

@@ -1,6 +1,8 @@
 package com.emenjivar.feature.diary.screens.entry.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -22,6 +25,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,7 +50,9 @@ import com.emenjivar.core.data.models.Mocks
 import com.emenjivar.core.data.models.SongModel
 import com.emenjivar.feature.diary.ui.ExoplayerProvider
 import com.emenjivar.feature.diary.ui.LocalExoplayerProvider
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,6 +91,8 @@ private fun MusicDetailBottomSheetLayout(
 ) {
     var isPlaying by remember { mutableStateOf(false) }
     val exoplayer = LocalExoplayerProvider.current.exoPlayer
+    var totalDuration by remember { mutableLongStateOf(0L) }
+    var currentPosition by remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(Unit) {
         exoplayer.apply {
@@ -100,9 +108,20 @@ private fun MusicDetailBottomSheetLayout(
                         if (playbackState == Player.STATE_ENDED) {
                             seekTo(0)
                         }
+
+                        if (playbackState == Player.STATE_READY) {
+                            totalDuration = (duration).coerceAtLeast(0L)
+                        }
                     }
                 }
             )
+        }
+    }
+
+    LaunchedEffect(isPlaying) {
+        while (isPlaying) {
+            currentPosition = exoplayer.currentPosition
+            delay(500L)
         }
     }
 
@@ -161,6 +180,20 @@ private fun MusicDetailBottomSheetLayout(
                 style = MaterialTheme.typography.titleSmall
             )
 
+            Slider(
+                value = currentPosition.toFloat(),
+                valueRange = 0f..totalDuration.toFloat(),
+                onValueChange = {}
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = totalDuration.toMinutesSeconds())
+                Text(text = currentPosition.toMinutesSeconds())
+            }
+
             IconButton(
                 onClick = {
                     if (isPlaying) {
@@ -178,6 +211,13 @@ private fun MusicDetailBottomSheetLayout(
             }
         }
     }
+}
+
+private fun Long.toMinutesSeconds(): String {
+    val duration = this.milliseconds
+    val minutes = duration.inWholeMinutes
+    val seconds = duration.inWholeSeconds
+    return "%d:%02d".format(minutes, seconds)
 }
 
 @Preview
